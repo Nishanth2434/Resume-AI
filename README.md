@@ -97,30 +97,23 @@
 ## 🏗 Architecture Diagram
 
 ```mermaid
-flowchart TD
-    subgraph Frontend [React / Vite Client]
-        UI[Browser UI]
-        State[React Context / LocalStorage]
-        UI <--> State
-    end
+flowchart LR
+    %% Define Styles
+    classDef frontend fill:#1E293B,stroke:#3B82F6,stroke-width:2px,color:#fff
+    classDef backend fill:#1E293B,stroke:#10B981,stroke-width:2px,color:#fff
+    classDef cloud fill:#1E293B,stroke:#8B5CF6,stroke-width:2px,color:#fff
 
-    subgraph Backend [FastAPI Server]
-        API_Analyze["/api/analyze"]
-        API_Rewrite["/api/rewrite"]
-        API_Cover["/api/cover-letter"]
-        Parser["PyMuPDF / Docx Parser"]
-    end
+    %% Components
+    UI["🖥️ React / Vite Frontend"]:::frontend
+    API["⚙️ FastAPI Backend"]:::backend
+    Gemini["🧠 Google Gemini AI"]:::cloud
+    Supabase[/"🔐 Supabase (Auth & DB)"/]:::cloud
 
-    subgraph External [Cloud Services]
-        SB[(Supabase DB & Auth)]
-        Gemini[Google Gemini 1.5 Flash]
-    end
-
-    UI -->|JWT Auth, Data Save/Load| SB
-    UI -->|Multipart Uploads, JSON Payloads| Backend
-    API_Analyze & API_Rewrite & API_Cover --> Gemini
-    API_Cover --> SB
-    API_Analyze --> Parser
+    %% Data Flow
+    UI -- "1. Uploads PDF & API Requests" --> API
+    UI -- "2. User Login & Data Sync" --> Supabase
+    API -- "3. Extracts Text & Prompts AI" --> Gemini
+    API -- "4. Validates Auth & Fetches Info" --> Supabase
 ```
 
 ---
