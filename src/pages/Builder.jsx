@@ -1,30 +1,53 @@
-import React, { useState, useRef } from 'react';
-import { User, Briefcase, GraduationCap, Code, Download, Eye, X, Trash2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { User, Briefcase, GraduationCap, Code, Download, Eye, X, Trash2, Save } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import html2pdf from 'html2pdf.js';
 import { getCroppedImg } from '../utils/cropImage';
+import { supabase } from '../lib/supabase';
 
 function Builder() {
   const [activeTab, setActiveTab] = useState('personal');
   const [showPreview, setShowPreview] = useState(false);
   
   // Photo & Cropping State
-  const [photoURL, setPhotoURL] = useState('https://via.placeholder.com/180');
   const [imageSrc, setImageSrc] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Resume Data State
   const [resumeData, setResumeData] = useState({
-    personal: { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '' },
+    personal: { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '', photoURL: 'https://via.placeholder.com/180' },
     experience: [ { role: '', company: '', startDate: '', endDate: '', bullets: '' } ],
     education: [ { degree: '', institution: '', year: '', gpa: '' } ],
     skills: { primary: '', secondary: '' }
   });
 
   const previewRef = useRef(null);
+
+  useEffect(() => {
+    const fetchSavedResume = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('resumes')
+          .select('data')
+          .eq('user_id', session.user.id)
+          .single();
+          
+        if (data && data.data) {
+          setResumeData(data.data);
+        }
+      } catch (err) {
+        console.error('Error fetching saved resume:', err);
+      }
+    };
+    fetchSavedResume();
+  }, []);
 
   const tabs = [
     { id: 'personal', label: 'Personal Info', icon: <User size={18} /> },
@@ -52,10 +75,35 @@ function Builder() {
   const showCroppedImage = async () => {
     try {
       const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
-      setPhotoURL(croppedImage);
+      setResumeData({ ...resumeData, personal: { ...resumeData.personal, photoURL: croppedImage } });
       setIsCropping(false);
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const saveResume = async () => {
+    setIsSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert("Please log in to save your resume.");
+        return;
+      }
+      
+      const { error } = await supabase.from('resumes').upsert({
+        user_id: session.user.id,
+        data: resumeData,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      
+      if (error) throw error;
+      alert("Resume saved successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Error saving resume: " + error.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -153,6 +201,9 @@ function Builder() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginTop: '0.5rem' }}>Engineer a recruiter-approved document.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-secondary" onClick={saveResume} disabled={isSaving} style={{ padding: '0.75rem 1.5rem' }}>
+            <Save size={18} style={{ marginRight: '0.5rem' }} /> {isSaving ? 'Saving...' : 'Save Resume'}
+          </button>
           <button className="btn btn-secondary" onClick={() => setShowPreview(true)}><Eye size={18} /> View Template</button>
           <button className="btn btn-gradient" onClick={exportPDF}><Download size={18} /> Export PDF</button>
         </div>
@@ -285,7 +336,7 @@ function Builder() {
       {/* HIDDEN RENDER FOR PDF EXPORT */}
       <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden' }}>
         <div ref={previewRef}>
-          <ResumePreview data={resumeData} photoURL={photoURL} />
+          <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} />
         </div>
       </div>
 
@@ -307,7 +358,7 @@ function Builder() {
             </div>
             <div style={{ flex: 1, overflowY: 'auto', background: '#d1d5db', display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
               <div style={{ transform: 'scale(0.85)', transformOrigin: 'top center', marginBottom: '-15%' }}>
-                <ResumePreview data={resumeData} photoURL={photoURL} />
+                <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} />
               </div>
             </div>
           </div>
