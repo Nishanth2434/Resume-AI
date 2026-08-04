@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Briefcase, GraduationCap, Code, Download, Eye, X, Trash2, Save, Wand2, Loader2 } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Code, Download, Eye, X, Trash2, Save, Wand2, Loader2, Link as LinkIcon } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import html2pdf from 'html2pdf.js';
 import { getCroppedImg } from '../utils/cropImage';
@@ -21,9 +21,12 @@ function Builder() {
 
   // Resume Data State
   const [resumeData, setResumeData] = useState({
+    resumeType: 'fresher',
+    hasInternship: null,
     personal: { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '', photoURL: 'https://via.placeholder.com/180' },
     experience: [ { role: '', company: '', startDate: '', endDate: '', bullets: '' } ],
-    education: [ { degree: '', institution: '', year: '', gpa: '' } ],
+    projects: [ { title: '', techStack: '', startDate: '', endDate: '', bullets: '', link: '' } ],
+    education: [ { degree: '', institution: '', year: '', gpa: '', coursework: '' } ],
     skills: { primary: '', secondary: '' }
   });
 
@@ -42,7 +45,15 @@ function Builder() {
           .single();
           
         if (data && data.data) {
-          setResumeData(data.data);
+          setResumeData({
+            resumeType: data.data.resumeType || 'fresher',
+            hasInternship: data.data.hasInternship !== undefined ? data.data.hasInternship : null,
+            personal: data.data.personal || { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '', photoURL: 'https://via.placeholder.com/180' },
+            experience: data.data.experience || [ { role: '', company: '', startDate: '', endDate: '', bullets: '' } ],
+            projects: data.data.projects || [ { title: '', techStack: '', startDate: '', endDate: '', bullets: '', link: '' } ],
+            education: data.data.education || [ { degree: '', institution: '', year: '', gpa: '', coursework: '' } ],
+            skills: data.data.skills || { primary: '', secondary: '' }
+          });
         }
       } catch (err) {
         console.error('Error fetching saved resume:', err);
@@ -51,12 +62,44 @@ function Builder() {
     fetchSavedResume();
   }, []);
 
-  const tabs = [
-    { id: 'personal', label: 'Personal Info', icon: <User size={18} /> },
-    { id: 'experience', label: 'Experience', icon: <Briefcase size={18} /> },
-    { id: 'education', label: 'Education', icon: <GraduationCap size={18} /> },
-    { id: 'skills', label: 'Skills', icon: <Code size={18} /> },
-  ];
+  const getTabs = () => {
+    let activeTabs = [ { id: 'personal', label: 'Personal Info', icon: <User size={18} /> } ];
+    
+    if (resumeData.resumeType === 'experienced') {
+      activeTabs.push({ id: 'experience', label: 'Experience', icon: <Briefcase size={18} /> });
+      activeTabs.push({ id: 'education', label: 'Education', icon: <GraduationCap size={18} /> });
+      activeTabs.push({ id: 'skills', label: 'Skills', icon: <Code size={18} /> });
+    } else {
+      if (resumeData.hasInternship === true) {
+        activeTabs.push({ id: 'experience', label: 'Internship', icon: <Briefcase size={18} /> });
+      }
+      if (resumeData.hasInternship !== null) {
+        activeTabs.push({ id: 'projects', label: 'Projects', icon: <Code size={18} /> });
+        activeTabs.push({ id: 'education', label: 'Education', icon: <GraduationCap size={18} /> });
+        activeTabs.push({ id: 'skills', label: 'Skills', icon: <Code size={18} /> });
+      }
+    }
+    return activeTabs;
+  };
+
+  const tabs = getTabs();
+
+  const handleResumeTypeChange = (type) => {
+    setResumeData(prev => ({ ...prev, resumeType: type, hasInternship: null }));
+    setActiveTab('personal');
+  };
+
+  const handleInternshipToggle = (hasInternship) => {
+    setResumeData(prev => {
+      const newData = { ...prev, hasInternship };
+      if (!hasInternship) {
+        newData.experience = [];
+      } else if (newData.experience.length === 0) {
+        newData.experience = [{ role: '', company: '', startDate: '', endDate: '', bullets: '' }];
+      }
+      return newData;
+    });
+  };
 
   const onFileChange = async (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -133,11 +176,17 @@ function Builder() {
     setResumeData({ ...resumeData, experience: newExp });
   };
 
-  const handleRewrite = async (index) => {
-    const textToRewrite = resumeData.experience[index].bullets;
+  const handleProjectChange = (index, field, value) => {
+    const newProj = [...resumeData.projects];
+    newProj[index][field] = value;
+    setResumeData({ ...resumeData, projects: newProj });
+  };
+
+  const handleRewrite = async (index, type) => {
+    const textToRewrite = type === 'experience' ? resumeData.experience[index].bullets : resumeData.projects[index].bullets;
     if (!textToRewrite) return;
     
-    setIsRewriting(index);
+    setIsRewriting(type + index);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session ? session.access_token : '';
@@ -154,7 +203,8 @@ function Builder() {
       
       if (response.ok) {
         const data = await response.json();
-        handleExperienceChange(index, 'bullets', data.rewritten);
+        if (type === 'experience') handleExperienceChange(index, 'bullets', data.rewritten);
+        else handleProjectChange(index, 'bullets', data.rewritten);
       } else {
         alert("Rewrite failed. Check your login and try again.");
       }
@@ -178,6 +228,18 @@ function Builder() {
     setResumeData({ ...resumeData, experience: newExp });
   };
 
+  const appendProject = () => {
+    setResumeData({
+      ...resumeData,
+      projects: [...resumeData.projects, { title: '', techStack: '', startDate: '', endDate: '', bullets: '', link: '' }]
+    });
+  };
+
+  const removeProject = (index) => {
+    const newProj = resumeData.projects.filter((_, i) => i !== index);
+    setResumeData({ ...resumeData, projects: newProj });
+  };
+
   const handleEducationChange = (index, field, value) => {
     const newEdu = [...resumeData.education];
     newEdu[index][field] = value;
@@ -187,7 +249,7 @@ function Builder() {
   const appendEducation = () => {
     setResumeData({
       ...resumeData,
-      education: [...resumeData.education, { degree: '', institution: '', year: '', gpa: '' }]
+      education: [...resumeData.education, { degree: '', institution: '', year: '', gpa: '', coursework: '' }]
     });
   };
 
@@ -203,7 +265,6 @@ function Builder() {
   return (
     <div className="container" style={{ padding: '2rem' }}>
       
-      {/* Photo Crop Modal */}
       {isCropping && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -250,34 +311,62 @@ function Builder() {
       </div>
 
       <div className="bento-grid" style={{ minHeight: '700px' }}>
-        {/* Sidebar Tabs */}
-        <div className="glass-panel animate-fade-in-up stagger-1 col-12 lg-col-3 bento-inner" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '1rem',
-                padding: '1.25rem', borderRadius: '1rem',
-                background: activeTab === tab.id ? 'var(--gradient-glass)' : 'transparent',
-                color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
-                border: activeTab === tab.id ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
-                textAlign: 'left',
-                transition: 'all 0.3s var(--ease-spring)',
-                fontWeight: activeTab === tab.id ? 600 : 500,
-                boxShadow: activeTab === tab.id ? '0 10px 20px rgba(0,0,0,0.2)' : 'none'
-              }}
-            >
-              <div style={{ color: activeTab === tab.id ? 'var(--accent-cyan)' : 'inherit' }}>
-                {tab.icon}
-              </div>
-              {tab.label}
-            </button>
-          ))}
+        <div className="glass-panel animate-fade-in-up stagger-1 col-12 lg-col-3 bento-inner" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          
+          {/* Fresher/Experienced Toggle */}
+          <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', borderRadius: '0.75rem', padding: '0.3rem', marginBottom: '1rem' }}>
+            <button 
+              onClick={() => handleResumeTypeChange('fresher')}
+              style={{ flex: 1, padding: '0.6rem', borderRadius: '0.5rem', background: resumeData.resumeType === 'fresher' ? 'var(--accent-primary)' : 'transparent', color: resumeData.resumeType === 'fresher' ? '#fff' : 'var(--text-secondary)', border: 'none', fontWeight: 600, transition: 'all 0.2s', cursor: 'pointer' }}
+            >Fresher</button>
+            <button 
+              onClick={() => handleResumeTypeChange('experienced')}
+              style={{ flex: 1, padding: '0.6rem', borderRadius: '0.5rem', background: resumeData.resumeType === 'experienced' ? 'var(--accent-primary)' : 'transparent', color: resumeData.resumeType === 'experienced' ? '#fff' : 'var(--text-secondary)', border: 'none', fontWeight: 600, transition: 'all 0.2s', cursor: 'pointer' }}
+            >Experienced</button>
+          </div>
+
+          {/* Sidebar Tabs */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '1rem',
+                  padding: '1.25rem', borderRadius: '1rem',
+                  background: activeTab === tab.id ? 'var(--gradient-glass)' : 'transparent',
+                  color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  border: activeTab === tab.id ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
+                  textAlign: 'left',
+                  transition: 'all 0.3s var(--ease-spring)',
+                  fontWeight: activeTab === tab.id ? 600 : 500,
+                  boxShadow: activeTab === tab.id ? '0 10px 20px rgba(0,0,0,0.2)' : 'none'
+                }}
+              >
+                <div style={{ color: activeTab === tab.id ? 'var(--accent-cyan)' : 'inherit' }}>
+                  {tab.icon}
+                </div>
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Form Area */}
         <div className="glass-panel animate-fade-in-up stagger-2 col-12 lg-col-9 bento-inner-lg">
+          
+          {/* Internship Prompt for Freshers */}
+          {resumeData.resumeType === 'fresher' && resumeData.hasInternship === null && (
+            <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid var(--accent-primary)', padding: '2rem', borderRadius: 'var(--radius-lg)', textAlign: 'center', marginBottom: '2rem' }}>
+              <h3 style={{ margin: '0 0 1rem 0' }}>Have you completed any internships?</h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>This helps us tailor your resume format to highlight the best aspects of your background.</p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+                <button className="btn btn-primary" onClick={() => handleInternshipToggle(true)} style={{ padding: '0.75rem 2rem' }}>Yes</button>
+                <button className="btn btn-secondary" onClick={() => handleInternshipToggle(false)} style={{ padding: '0.75rem 2rem' }}>No</button>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'personal' && (
             <div className="animate-scale-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
@@ -306,8 +395,8 @@ function Builder() {
           {activeTab === 'experience' && (
             <div className="animate-scale-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-                <h2 style={{ margin: 0, fontSize: '2rem' }}>Professional Trajectory</h2>
-                <button className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }} onClick={appendExperience}>+ Append Role</button>
+                <h2 style={{ margin: 0, fontSize: '2rem' }}>{resumeData.resumeType === 'fresher' ? 'Internships' : 'Professional Trajectory'}</h2>
+                <button className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }} onClick={appendExperience}>+ Append {resumeData.resumeType === 'fresher' ? 'Internship' : 'Role'}</button>
               </div>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -319,22 +408,62 @@ function Builder() {
                       </button>
                     )}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-                      <FormGroup label="Role Designation" type="text" placeholder="Marketing Manager" value={exp.role} onChange={(e) => handleExperienceChange(index, 'role', e.target.value)} />
+                      <FormGroup label={resumeData.resumeType === 'fresher' ? 'Intern Role' : 'Role Designation'} type="text" placeholder="Marketing Intern" value={exp.role} onChange={(e) => handleExperienceChange(index, 'role', e.target.value)} />
                       <FormGroup label="Organization" type="text" placeholder="Borcelle Studio" value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} />
-                      <FormGroup label="Commencement" type="month" value={exp.startDate} onChange={(e) => handleExperienceChange(index, 'startDate', e.target.value)} />
+                      <FormGroup label="Commencement" type="text" placeholder="e.g. Jan 2023" value={exp.startDate} onChange={(e) => handleExperienceChange(index, 'startDate', e.target.value)} />
                       <FormGroup label="Conclusion" type="text" placeholder="Present" value={exp.endDate} onChange={(e) => handleExperienceChange(index, 'endDate', e.target.value)} />
                     </div>
-                      <div style={{ position: 'relative' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
-                          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Impact & Deliverables (Bullet points)</span>
-                          <button onClick={() => handleRewrite(index)} disabled={isRewriting === index} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--gradient-mesh)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            {isRewriting === index ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />} 
-                            {isRewriting === index ? 'Rewriting...' : 'AI Magic Rewrite'}
-                          </button>
-                        </div>
-                        <FormGroup type="textarea" placeholder="- Developed and executed comprehensive marketing strategies..." rows={6} value={exp.bullets} onChange={(e) => handleExperienceChange(index, 'bullets', e.target.value)} />
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Impact & Deliverables (Bullet points)</span>
+                        <button onClick={() => handleRewrite(index, 'experience')} disabled={isRewriting === 'experience' + index} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--gradient-mesh)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          {isRewriting === 'experience' + index ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />} 
+                          {isRewriting === 'experience' + index ? 'Rewriting...' : 'AI Magic Rewrite'}
+                        </button>
+                      </div>
+                      <FormGroup type="textarea" placeholder="- Developed and executed comprehensive strategies..." rows={6} value={exp.bullets} onChange={(e) => handleExperienceChange(index, 'bullets', e.target.value)} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'projects' && (
+            <div className="animate-scale-in">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+                <h2 style={{ margin: 0, fontSize: '2rem' }}>Projects</h2>
+                <button className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }} onClick={appendProject}>+ Append Project</button>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {resumeData.projects.map((proj, index) => (
+                  <div key={index} style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                    {resumeData.projects.length > 1 && (
+                      <button onClick={() => removeProject(index)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                        <Trash2 size={20} />
+                      </button>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+                      <FormGroup label="Project Title" type="text" placeholder="E-Commerce App" value={proj.title} onChange={(e) => handleProjectChange(index, 'title', e.target.value)} />
+                      <FormGroup label="Tech Stack" type="text" placeholder="React, Node.js, MongoDB" value={proj.techStack} onChange={(e) => handleProjectChange(index, 'techStack', e.target.value)} />
+                      <FormGroup label="Commencement" type="text" placeholder="e.g. Jan 2023" value={proj.startDate} onChange={(e) => handleProjectChange(index, 'startDate', e.target.value)} />
+                      <FormGroup label="Conclusion" type="text" placeholder="Present" value={proj.endDate} onChange={(e) => handleProjectChange(index, 'endDate', e.target.value)} />
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <FormGroup label="Live Link / GitHub URL" type="url" placeholder="https://github.com/my-project" value={proj.link} onChange={(e) => handleProjectChange(index, 'link', e.target.value)} />
                       </div>
                     </div>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 500 }}>What did you build? (Bullet points)</span>
+                        <button onClick={() => handleRewrite(index, 'project')} disabled={isRewriting === 'project' + index} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--gradient-mesh)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          {isRewriting === 'project' + index ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />} 
+                          {isRewriting === 'project' + index ? 'Rewriting...' : 'AI Magic Rewrite'}
+                        </button>
+                      </div>
+                      <FormGroup type="textarea" placeholder="- Developed a scalable backend..." rows={6} value={proj.bullets} onChange={(e) => handleProjectChange(index, 'bullets', e.target.value)} />
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -360,6 +489,12 @@ function Builder() {
                       <FormGroup label="Academic Institution" type="text" placeholder="Wardiere University" value={edu.institution} onChange={(e) => handleEducationChange(index, 'institution', e.target.value)} />
                       <FormGroup label="Conferral Year" type="number" placeholder="2031" value={edu.year} onChange={(e) => handleEducationChange(index, 'year', e.target.value)} />
                       <FormGroup label="Academic Standing (GPA)" type="text" placeholder="3.8 / 4.0" value={edu.gpa} onChange={(e) => handleEducationChange(index, 'gpa', e.target.value)} />
+                      
+                      {resumeData.resumeType === 'fresher' && (
+                        <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+                          <FormGroup label="Relevant Coursework" type="textarea" placeholder="Data Structures, Algorithms, Machine Learning..." rows={3} value={edu.coursework || ''} onChange={(e) => handleEducationChange(index, 'coursework', e.target.value)} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -420,14 +555,17 @@ function Builder() {
 // Extracted Component for Resume Rendering
 function ResumePreview({ data, photoURL, template }) {
   const p = data.personal;
-  const primarySkills = data.skills.length > 0 ? data.skills.filter(s => s.trim()) : ['Project Management', 'Public Relations', 'Teamwork', 'Time Management', 'Leadership', 'Effective Communication'];
+  const primarySkills = data.skills?.primary ? data.skills.primary.split(',').filter(s => s.trim()) : ['Project Management', 'Public Relations', 'Teamwork', 'Time Management', 'Leadership'];
   
   const themeConfig = {
-    modern: { sidebar: '#e5e7eb', sidebarText: '#475569', mainHeader: '#353945', headerText: '#ffffff', font: '""Inter"", sans-serif', accent: '#3b82f6', rightBg: '#ffffff' },
-    classic: { sidebar: '#ffffff', sidebarText: '#000000', mainHeader: '#ffffff', headerText: '#000000', font: '""Times New Roman"", serif', accent: '#000000', border: '1px solid #ccc', rightBg: '#ffffff' },
-    creative: { sidebar: '#fce7f3', sidebarText: '#831843', mainHeader: '#db2777', headerText: '#ffffff', font: '""Outfit"", sans-serif', accent: '#db2777', rightBg: '#fff1f2' }
+    modern: { sidebar: '#e5e7eb', sidebarText: '#475569', mainHeader: '#353945', headerText: '#ffffff', font: '"Inter", sans-serif', accent: '#3b82f6', rightBg: '#ffffff' },
+    classic: { sidebar: '#ffffff', sidebarText: '#000000', mainHeader: '#ffffff', headerText: '#000000', font: '"Times New Roman", serif', accent: '#000000', border: '1px solid #ccc', rightBg: '#ffffff' },
+    creative: { sidebar: '#fce7f3', sidebarText: '#831843', mainHeader: '#db2777', headerText: '#ffffff', font: '"Outfit", sans-serif', accent: '#db2777', rightBg: '#fff1f2' }
   };
   const t = themeConfig[template] || themeConfig.modern;
+
+  const isFresher = data.resumeType === 'fresher';
+  const hasIntern = data.hasInternship === true;
 
   return (
     <div id="resume-preview-container" style={{ 
@@ -500,43 +638,93 @@ function ResumePreview({ data, photoURL, template }) {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>WORK EXPERIENCE</h3>
-              
-              {data.experience.length === 1 && !data.experience[0].role ? (
-                <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                    <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>Borcelle Studio</h4>
-                    <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>2030 - PRESENT</span>
-                  </div>
-                  <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
-                  <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
-                    <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
-                    <li>Lead, mentor, and manage a high-performing marketing team.</li>
-                  </ul>
-                </div>
-              ) : (
-                data.experience.map((exp, idx) => (
-                  <div key={idx} style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+          {/* Work Experience / Internships */}
+          {(!isFresher || (isFresher && hasIntern)) && (
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>
+                  {isFresher ? 'INTERNSHIPS' : 'WORK EXPERIENCE'}
+                </h3>
+                
+                {data.experience.length === 1 && !data.experience[0].role ? (
+                  <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{exp.company || 'Company'}</h4>
-                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{exp.startDate} - {exp.endDate}</span>
+                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>Borcelle Studio</h4>
+                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>2030 - PRESENT</span>
                     </div>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>{exp.role}</p>
-                    {exp.bullets && (
-                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
-                        {exp.bullets.split('\n').filter(b => b.trim()).map((bullet, bIdx) => (
-                          <li key={bIdx}>{bullet.replace(/^-/, '').trim()}</li>
-                        ))}
-                      </ul>
-                    )}
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>Marketing Manager</p>
+                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
+                      <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
+                      <li>Lead, mentor, and manage a high-performing marketing team.</li>
+                    </ul>
                   </div>
-                ))
-              )}
+                ) : (
+                  data.experience.map((exp, idx) => (
+                    <div key={idx} style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                        <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{exp.company || 'Company'}</h4>
+                        <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{exp.startDate} - {exp.endDate}</span>
+                      </div>
+                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>{exp.role}</p>
+                      {exp.bullets && (
+                        <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
+                          {exp.bullets.split('\n').filter(b => b.trim()).map((bullet, bIdx) => (
+                            <li key={bIdx}>{bullet.replace(/^-/, '').trim()}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
+          {/* Projects */}
+          {isFresher && (
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>
+                  PROJECTS
+                </h3>
+                
+                {data.projects.length === 1 && !data.projects[0].title ? (
+                  <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>E-Commerce Platform</h4>
+                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>Jan 2024 - Present</span>
+                    </div>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>React, Node.js, MongoDB</p>
+                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
+                      <li>Developed a full-stack e-commerce solution with user authentication and payment integration.</li>
+                    </ul>
+                  </div>
+                ) : (
+                  data.projects.map((proj, idx) => (
+                    <div key={idx} style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                        <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{proj.title || 'Project'}</h4>
+                        <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{proj.startDate} - {proj.endDate}</span>
+                      </div>
+                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>
+                        {proj.techStack}
+                        {proj.link && <span style={{ marginLeft: '1rem' }}><LinkIcon size={12}/> {proj.link}</span>}
+                      </p>
+                      {proj.bullets && (
+                        <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
+                          {proj.bullets.split('\n').filter(b => b.trim()).map((bullet, bIdx) => (
+                            <li key={bIdx}>{bullet.replace(/^-/, '').trim()}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Education */}
           <div style={{ display: 'flex', gap: '1rem' }}>
             <div style={{ flex: 1 }}>
               <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>EDUCATION</h3>
@@ -557,6 +745,11 @@ function ResumePreview({ data, photoURL, template }) {
                       <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{edu.year}</span>
                     </div>
                     <p style={{ margin: 0, fontSize: '0.9rem', color: '#333' }}>{edu.institution}{edu.gpa ? <><br/>GPA: {edu.gpa}</> : null}</p>
+                    {isFresher && edu.coursework && (
+                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>
+                        <span style={{ fontWeight: 600 }}>Coursework:</span> {edu.coursework}
+                      </p>
+                    )}
                   </div>
                 ))
               )}
@@ -568,7 +761,6 @@ function ResumePreview({ data, photoURL, template }) {
     </div>
   );
 }
-
 
 function FormGroup({ label, type, placeholder, rows, value, onChange }) {
   const inputStyle = {
