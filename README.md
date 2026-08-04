@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo.svg" alt="Smart AI Resume Analyzer logo" width="170" />
+<img src="public/logo.jpg" alt="Smart AI Resume Analyzer logo" width="170" />
 
 # 📄 Smart AI Resume Analyzer & Builder
 
