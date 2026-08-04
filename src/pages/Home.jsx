@@ -4,7 +4,7 @@ import { ShieldCheck, Target, TrendingUp, Sparkles, Upload, FileText, ChevronRig
 
 function Home() {
   return (
-    <div className="container" style={{ padding: '6rem 2rem 10rem 2rem' }}>
+    <div className="container hero-section">
       {/* Hero Section */}
       <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto 8rem auto', position: 'relative' }}>
         <div className="animate-fade-in-up stagger-1" style={{ display: 'inline-flex', alignItems: 'center', padding: '0.5rem 1rem', background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-pill)', color: 'var(--text-secondary)', fontWeight: 500, marginBottom: '2rem', fontSize: '0.9rem' }}>
@@ -37,7 +37,7 @@ function Home() {
         
         <div className="bento-grid">
           {/* Main Feature - Large */}
-          <div className="glass-panel glass-panel-hover col-12 md-col-8" style={{ padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-8 bento-inner-lg" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, var(--accent-cyan), transparent 60%)', filter: 'blur(60px)', opacity: 0.2, zIndex: 0 }}></div>
             <div style={{ zIndex: 1, position: 'relative' }}>
               <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)', display: 'inline-flex', padding: '1.2rem', borderRadius: '1.2rem', marginBottom: '2rem' }}>
@@ -51,7 +51,7 @@ function Home() {
           </div>
 
           {/* Side Feature 1 - Medium */}
-          <div className="glass-panel glass-panel-hover col-12 md-col-4" style={{ padding: '3rem', display: 'flex', flexDirection: 'column' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-4 bento-inner" style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', display: 'inline-flex', padding: '1rem', borderRadius: '1rem', alignSelf: 'flex-start', marginBottom: '1.5rem' }}>
               <Target size={32} color="var(--accent-purple)" />
             </div>
@@ -62,7 +62,7 @@ function Home() {
           </div>
 
           {/* Side Feature 2 - Medium */}
-          <div className="glass-panel glass-panel-hover col-12 md-col-5" style={{ padding: '3rem', display: 'flex', flexDirection: 'column' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-5 bento-inner" style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ background: 'rgba(236, 72, 153, 0.1)', border: '1px solid rgba(236, 72, 153, 0.2)', display: 'inline-flex', padding: '1rem', borderRadius: '1rem', alignSelf: 'flex-start', marginBottom: '1.5rem' }}>
               <TrendingUp size={32} color="var(--accent-pink)" />
             </div>
@@ -73,7 +73,7 @@ function Home() {
           </div>
 
           {/* Wide Feature - Medium */}
-          <div className="glass-panel glass-panel-hover col-12 md-col-7" style={{ padding: '3rem', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3rem' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-7 bento-inner" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3rem' }}>
             <div>
               <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>AI-Powered Builder</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '1.5rem' }}>

@@ -36,7 +36,7 @@ function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 50, padding: '1rem 2rem' }}>
+    <header className="app-header">
       <div className="glass-panel" style={{ 
         maxWidth: '1200px', 
         margin: '0 auto', 
@@ -54,7 +54,7 @@ function Navbar() {
           <span style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>SmartResume<span className="text-gradient">AI</span></span>
         </Link>
         
-        <nav style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+        <nav className="nav-container">
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
             <HomeIcon size={16} /> <span className="nav-desktop-text">Home</span>
           </Link>
@@ -91,7 +91,7 @@ function Navbar() {
 
 function Footer() {
   return (
-    <footer style={{ background: 'rgba(10, 10, 15, 0.8)', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '4rem 2rem 2rem 2rem', marginTop: 'auto', backdropFilter: 'blur(20px)' }}>
+    <footer className="footer-section" style={{ background: 'rgba(10, 10, 15, 0.8)', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: 'auto', backdropFilter: 'blur(20px)' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '3rem' }}>
         
         {/* Brand Column */}
