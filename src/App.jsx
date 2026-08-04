@@ -1,12 +1,32 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { FileText, BarChart, Settings, Home as HomeIcon, Zap } from 'lucide-react';
+import React, { useState, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { FileText, BarChart, Settings, Home as HomeIcon, Zap, LogIn, LogOut } from 'lucide-react';
 import Home from './pages/Home';
 import Analyzer from './pages/Analyzer';
 import Builder from './pages/Builder';
+import Login from './pages/Login';
 import './index.css';
 
+// Create Authentication Context
+export const AuthContext = createContext(null);
+
+export const useAuth = () => useContext(AuthContext);
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    // Redirect them to the /login page, but save the current location they were trying to go to
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
 function Navbar() {
+  const { isAuthenticated, logout } = useAuth();
+
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 50, padding: '1rem 2rem' }}>
       <div className="glass-panel" style={{ 
@@ -34,6 +54,17 @@ function Navbar() {
           <Link to="/build" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
             Builder
           </Link>
+          
+          {isAuthenticated ? (
+            <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
+              Sign Out
+            </button>
+          ) : (
+            <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
+              Sign In
+            </Link>
+          )}
+
           <Link to="/analyze" className="btn btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}>
             Get Started
           </Link>
@@ -70,21 +101,40 @@ function BackgroundEffects() {
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const login = () => setIsAuthenticated(true);
+  const logout = () => setIsAuthenticated(false);
+
   return (
-    <Router>
-      <div className="app-container">
-        <BackgroundEffects />
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/analyze" element={<Analyzer />} />
-            <Route path="/build" element={<Builder />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+      <Router>
+        <div className="app-container">
+          <BackgroundEffects />
+          <Navbar />
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              
+              {/* Protected Routes */}
+              <Route path="/analyze" element={
+                <ProtectedRoute>
+                  <Analyzer />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/build" element={
+                <ProtectedRoute>
+                  <Builder />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </AuthContext.Provider>
   );
 }
 

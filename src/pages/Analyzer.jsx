@@ -5,6 +5,7 @@ function Analyzer() {
   const [file, setFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [resultsReady, setResultsReady] = useState(false);
+  const [analysisData, setAnalysisData] = useState(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -23,13 +24,32 @@ function Analyzer() {
     }
   };
 
-  const startAnalysis = () => {
+  const startAnalysis = async () => {
     if (!file) return;
     setAnalyzing(true);
-    setTimeout(() => {
-      setAnalyzing(false);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('http://localhost:8000/api/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Analysis failed. Ensure the backend server is running.');
+      }
+
+      const data = await response.json();
+      setAnalysisData(data);
       setResultsReady(true);
-    }, 2500);
+    } catch (error) {
+      console.error(error);
+      alert('Error connecting to backend: ' + error.message);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
@@ -97,13 +117,18 @@ function Analyzer() {
           </div>
         </div>
       ) : (
-        <ResultsDashboard onReset={() => { setResultsReady(false); setFile(null); }} />
+        <ResultsDashboard 
+          data={analysisData} 
+          onReset={() => { setResultsReady(false); setFile(null); setAnalysisData(null); }} 
+        />
       )}
     </div>
   );
 }
 
-function ResultsDashboard({ onReset }) {
+function ResultsDashboard({ data, onReset }) {
+  if (!data) return null;
+
   return (
     <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -133,8 +158,8 @@ function ResultsDashboard({ onReset }) {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               boxShadow: 'inset 0 10px 20px rgba(0,0,0,0.5)'
             }}>
-              <span style={{ fontSize: '4rem', fontWeight: 800, color: 'transparent', background: 'linear-gradient(135deg, #10b981, #34d399)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>82<span style={{fontSize: '2rem'}}>%</span></span>
-              <span style={{ color: '#10b981', fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Excellent</span>
+              <span style={{ fontSize: '4rem', fontWeight: 800, color: 'transparent', background: 'linear-gradient(135deg, #10b981, #34d399)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>{data.ats_score}<span style={{fontSize: '2rem'}}>%</span></span>
+              <span style={{ color: '#10b981', fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{data.score_label}</span>
             </div>
           </div>
         </div>
@@ -144,33 +169,33 @@ function ResultsDashboard({ onReset }) {
           <DashboardCard 
             icon={<BarChart2 color="var(--accent-cyan)" size={28} />}
             title="Keyword Synergy"
-            value="14/20 Found"
-            desc="You are missing some critical industry terms required by top-tier ATS."
-            status="warning"
+            value={data.keyword_synergy.value}
+            desc={data.keyword_synergy.description}
+            status={data.keyword_synergy.status}
             delay="stagger-2"
           />
           <DashboardCard 
             icon={<Activity color="var(--accent-blue)" size={28} />}
             title="Structural Integrity"
-            value="Optimal"
-            desc="Clean layout, highly parseable by machine readers."
-            status="success"
+            value={data.structural_integrity.value}
+            desc={data.structural_integrity.description}
+            status={data.structural_integrity.status}
             delay="stagger-2"
           />
           <DashboardCard 
             icon={<PieChart color="var(--accent-pink)" size={28} />}
             title="Action Velocity"
-            value="Sub-optimal"
-            desc="Weak verb usage detected. Upgrade to powerful action verbs."
-            status="error"
+            value={data.action_velocity.value}
+            desc={data.action_velocity.description}
+            status={data.action_velocity.status}
             delay="stagger-3"
           />
           <DashboardCard 
             icon={<CheckCircle color="#10b981" size={28} />}
             title="Metadata"
-            value="Verified"
-            desc="Contact, email, and professional links extracted perfectly."
-            status="success"
+            value={data.metadata.value}
+            desc={data.metadata.description}
+            status={data.metadata.status}
             delay="stagger-3"
           />
         </div>
@@ -182,18 +207,13 @@ function ResultsDashboard({ onReset }) {
             <Zap color="var(--accent-purple)" size={28} /> Actionable Directives
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <RecommendationItem 
-              title="Inject Missing Keywords" 
-              desc="Based on the standard 'Software Engineer' profile, your resume lacks: Docker, Kubernetes, GraphQL. Inject these naturally into your experience."
-            />
-            <RecommendationItem 
-              title="Quantify Impact Metrics" 
-              desc="40% of your bullet points lack numbers. Transform 'Improved performance' into 'Engineered a caching layer that reduced load times by 300ms, improving user retention by 20%'."
-            />
-            <RecommendationItem 
-              title="Consolidate Skill Hierarchy" 
-              desc="Your skills section is a flat list. Re-organize into categorical buckets (e.g., 'Languages', 'Frameworks', 'DevOps') to improve human readability."
-            />
+            {data.actionable_directives.map((directive, index) => (
+              <RecommendationItem 
+                key={index}
+                title={directive.title} 
+                desc={directive.description}
+              />
+            ))}
           </div>
         </div>
       </div>
