@@ -59,6 +59,17 @@
 
 <br/>
 
+### 🎨 Premium Resume Templates (Auto-Scaling & A4 Ready)
+
+| Modern Template | Classic Executive | Creative Template |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/template_modern.png" alt="Modern Template" width="100%" /> | <img src="docs/screenshots/template_classic.png" alt="Classic Template" width="100%" /> | <img src="docs/screenshots/template_creative.png" alt="Creative Template" width="100%" /> |
+| *2-Column, clean sans-serif layout.* | *Traditional single-column Harvard style.* | *Dark mode with vibrant accent tags.* |
+
+<br/>
+
+### 📱 Core Application
+
 | 🔐 Login & Auth | 📝 Resume Analyzer |
 | :---: | :---: |
 | <img src="docs/screenshots/login.png" alt="Login" width="100%" /> | <img src="docs/screenshots/analyzer.png" alt="Analyzer" width="100%" /> |
