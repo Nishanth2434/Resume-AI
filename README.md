@@ -1,86 +1,114 @@
 <div align="center">
-  <img src="public/logo.jpg" alt="Resume AI Logo" width="180"/>
-  <h1>🧠 Smart AI Resume Analyzer & Builder</h1>
-  <p><b>An ultra-premium, AI-powered platform to analyze, score, and build ATS-optimized resumes.</b></p>
-  
-  <p>
-    <a href="https://resume-ai-azure-two.vercel.app/"><img src="https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel" alt="Live Demo" /></a>
-    <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" alt="Status" />
-    <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
-  </p>
+
+<img src="docs/logo.svg" alt="Smart AI Resume Analyzer logo" width="170" />
+
+# 📄 Smart AI Resume Analyzer & Builder
+
+*Empowering professionals with AI-driven resume insights and a beautiful, live-synced builder.*
+
+<p align="center">
+  <a href="https://resume-ai-azure-two.vercel.app/">
+    <img src="https://img.shields.io/badge/Live_Website-2563EB?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Website" />
+  </a>
+  <a href="https://github.com/Nishanth2434/Resume-AI/stargazers">
+    <img src="https://img.shields.io/badge/GitHub_Stars-F59E0B?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Stars" />
+  </a>
+  <img src="https://img.shields.io/badge/License_MIT-22C55E?style=for-the-badge" alt="License MIT" />
+  <img src="https://img.shields.io/badge/Version_1.0.0-6366F1?style=for-the-badge" alt="Version 1.0.0" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase" />
+</p>
+
+</div>
+
+<br/>
+
+<div align="center">
+
+<a href="https://resume-ai-azure-two.vercel.app/">
+  <img src="https://img.shields.io/badge/🚀_LAUNCH_LIVE_APP-111111?style=for-the-badge" height="52" alt="Launch Live App" />
+</a>
+
+<br/><br/>
+
+| Route | Path | Description |
+| :--- | :--- | :--- |
+| **Home** | `/` | Landing page and overview |
+| **Login / Sign Up** | `/login` | Secure Supabase authentication |
+| **Analyzer** | `/analyze` | Upload and analyze resumes (ATS score & feedback) |
+| **Builder** | `/build` | Live resume builder with themes & Magic Rewrite |
+| **Cover Letter** | `/cover-letter` | AI-generated cover letter from saved resume |
+
 </div>
 
 ---
 
-## 📖 Overview
+## 📸 A Look Inside
 
-**Smart AI Resume Analyzer & Builder** is a modern SaaS application designed for students and professionals to optimize their resumes for Applicant Tracking Systems (ATS). 
+<div align="center">
+<b>Welcome to SmartResumeAI</b><br/>
+<img src="docs/screenshots/home.png" alt="Home Page" width="100%" />
+</div>
 
-Built with a stunning **glassmorphism UI**, it leverages **Google's Gemini 1.5 Flash AI** to dissect uploaded resumes (PDF/DOCX) and provide actionable, highly detailed feedback. It also features a built-in **Resume Builder** that generates perfectly aligned, premium PDF resumes on the fly. User data and resumes are securely persisted using **Supabase**.
+<br/>
 
----
-
-## ✨ A Look Inside
-
-<details open>
-<summary><b>View Screenshots</b></summary>
-<br>
-
-*(Note: These are real Playwright screenshots captured directly from the Vercel deployment!)*
-
-| Dashboard Analysis | Resume Builder |
-|:---:|:---:|
-| <img src="docs/screenshots/analyzer.png" width="400"/> | <img src="docs/screenshots/builder.png" width="400"/> |
-| *The AI Analysis Bento-Grid Dashboard* | *Interactive Tabbed Resume Builder* |
-
-| Landing Page | Login Portal |
-|:---:|:---:|
-| <img src="docs/screenshots/home.png" width="400"/> | <img src="docs/screenshots/login.png" width="400"/> |
-
-</details>
+| 🔐 Login & Auth | 📝 Resume Analyzer |
+| :---: | :---: |
+| <img src="docs/screenshots/login.png" alt="Login" width="100%" /> | <img src="docs/screenshots/analyzer.png" alt="Analyzer" width="100%" /> |
+| **🛠️ Resume Builder** | **✉️ AI Cover Letter** |
+| <img src="docs/screenshots/builder.png" alt="Builder" width="100%" /> | <img src="docs/screenshots/cover_letter.png" alt="Cover Letter" width="100%" /> |
 
 ---
 
-## ⚡ Features
+## ✨ Features
 
 | Feature | Description |
 | :--- | :--- |
-| **🤖 AI Diagnostic Engine** | Upload your PDF or DOCX resume and receive an instant ATS score, keyword synergy analysis, and 3 actionable directives via Google Gemini AI. |
-| **📝 Premium Resume Builder** | A highly interactive builder with tabs for Personal, Experience, Education, and Skills. Features dynamic array mapping for endless roles/degrees. |
-| **📸 Dynamic Photo Cropper** | Upload and interactively crop your profile picture directly inside the builder using `react-easy-crop`. |
-| **📄 One-Click PDF Export** | Instantly download your built resume as an A4-sized PDF using `html2pdf.js`. |
-| **🔒 Secure Authentication** | Powered by Supabase Auth (JWT). Ensures your data and analyses are kept private and secure. |
-| **☁️ Cloud Persistence** | Real-time auto-saving of your builder data to Supabase PostgreSQL, restoring seamlessly on login. |
+| 🧠 **AI Resume Analysis** | Securely parse PDF/DOCX resumes and get real-time ATS scoring, actionable feedback, and keyword optimization via Google Gemini 1.5 Flash. |
+| 🛠️ **Premium Resume Builder** | A two-column live-syncing builder with multiple high-contrast templates (Modern, Classic, Creative). |
+| 🪄 **Magic Rewrite** | Click a single button on any bullet point to have Gemini automatically rewrite it into a highly professional, ATS-friendly format. |
+| ✉️ **Cover Letter Generator** | Paste a job description and automatically generate a personalized cover letter using your securely saved resume data. |
+| 🔐 **Supabase Authentication** | Enterprise-grade JWT-based login and signup keeping user resume data fully isolated and private via Row Level Security. |
+| 📄 **One-Click PDF Export** | Render complex HTML styling perfectly into high-resolution PDFs using local browser processing (`html2pdf.js`). |
 
 ---
 
 ## 🛠 Tech Stack
 
-| Domain | Technology | Description |
-| :--- | :--- | :--- |
-| **Frontend** | React 19 + Vite | Lightning-fast SPA with Hot Module Replacement |
-| **Routing** | React Router DOM v7 | Seamless client-side navigation |
-| **Styling** | Vanilla CSS | Custom glassmorphism, dynamic mesh gradients, keyframes |
-| **Backend** | Python 3 + FastAPI | High-performance API routing |
-| **AI Engine** | Google Gemini 1.5 Flash | Core brain for parsing resume text into structured JSON |
-| **Parsing** | PyMuPDF & Python-Docx | Robust document parsing to extract text from files |
-| **Database** | Supabase (PostgreSQL) | Cloud database with Row Level Security (RLS) |
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend Framework** | React 19.2 (Vite 8.2) |
+| **Routing** | React Router DOM 7.18 |
+| **Backend API** | Python 3 + FastAPI |
+| **AI Engine** | Google Gemini (google-generativeai) |
+| **Document Parsing** | PyMuPDF (fitz), Python-Docx |
+| **Database & Auth** | Supabase (PostgreSQL, supabase-js 2.112) |
+| **PDF Rendering** | html2pdf.js 0.14 |
 
 ---
 
 ## 🏗 Architecture Diagram
 
 ```mermaid
-graph LR
-    subgraph Frontend [React SPA]
-        UI[Glassmorphism UI]
-        RB[Resume Builder]
-        AA[Analysis Dashboard]
+flowchart TD
+    subgraph Frontend [React / Vite Client]
+        UI[Browser UI]
+        State[React Context / LocalStorage]
+        UI <--> State
     end
 
     subgraph Backend [FastAPI Server]
-        API[/api/analyze]
-        Parser[PyMuPDF / Docx]
+        API_Analyze[/api/analyze]
+        API_Rewrite[/api/rewrite]
+        API_Cover[/api/cover-letter]
+        Parser[PyMuPDF / Docx Parser]
     end
 
     subgraph External [Cloud Services]
@@ -88,13 +116,11 @@ graph LR
         Gemini[Google Gemini 1.5 Flash]
     end
 
-    UI -->|JWT Auth & Save/Load| SB
-    AA -->|Upload PDF/DOCX| API
-    API -->|Extract Text| Parser
-    Parser -->|Send Text| Gemini
-    Gemini -->|Return JSON Diagnostic| API
-    API -->|Save Analysis| SB
-    API -->|Return JSON| AA
+    UI -->|JWT Auth, Data Save/Load| SB
+    UI -->|Multipart Uploads, JSON Payloads| Backend
+    API_Analyze & API_Rewrite & API_Cover --> Gemini
+    API_Cover --> SB
+    API_Analyze --> Parser
 ```
 
 ---
@@ -102,64 +128,84 @@ graph LR
 ## 📁 Project Structure
 
 ```text
-Resume-AI/
-├── backend/
-│   ├── main.py                 # FastAPI application & CORS config
-│   ├── requirements.txt        # Python dependencies
-│   └── services/
-│       ├── analyzer.py         # Gemini AI prompting logic
-│       └── parser.py           # PDF/DOCX text extraction
-├── docs/
-│   └── screenshots/            # Playwright captured images
-├── public/                     # Static assets (logo)
-├── src/
-│   ├── App.jsx                 # React Router configuration
-│   ├── index.css               # Global glassmorphism design system
-│   ├── lib/
-│   │   └── supabase.js         # Supabase client initialization
-│   ├── pages/
-│   │   ├── Analyzer.jsx        # File upload & results dashboard
-│   │   ├── Builder.jsx         # Complex tabbed builder & PDF export
-│   │   ├── Home.jsx            # Landing page
-│   │   └── Login.jsx           # Auth flow
-│   └── utils/
-│       └── cropImage.js        # Canvas utilities for image cropping
-└── package.json
+📦 smart-resume-analysis
+ ┣ 📂 backend/
+ ┃ ┣ 📂 services/
+ ┃ ┃ ┣ 📜 analyzer.py         # Gemini AI prompting logic
+ ┃ ┃ ┗ 📜 parser.py           # PDF/DOCX text extraction
+ ┃ ┣ 📜 main.py                 # FastAPI application, CORS, and Routes
+ ┃ ┣ 📜 requirements.txt        # Python dependencies
+ ┃ ┗ 📜 .env                    # Backend secrets
+ ┣ 📂 docs/
+ ┃ ┣ 📂 screenshots/            # UI screenshots
+ ┃ ┗ 📜 logo.svg
+ ┣ 📂 src/
+ ┃ ┣ 📂 lib/
+ ┃ ┃ ┗ 📜 supabase.js           # Supabase client initialization
+ ┃ ┣ 📂 pages/
+ ┃ ┃ ┣ 📜 Analyzer.jsx          # File upload and ATS dashboard
+ ┃ ┃ ┣ 📜 Builder.jsx           # Live resume template engine
+ ┃ ┃ ┣ 📜 CoverLetter.jsx       # AI job description matching
+ ┃ ┃ ┣ 📜 Home.jsx              # Landing page
+ ┃ ┃ ┗ 📜 Login.jsx             # Auth screen
+ ┃ ┣ 📂 utils/                  # Helper utilities
+ ┃ ┣ 📜 App.jsx                 # Routing and Layout
+ ┃ ┣ 📜 index.css               # Global glassmorphism and theme variables
+ ┃ ┗ 📜 main.jsx                # React DOM entry
+ ┣ 📜 package.json              # Frontend dependencies
+ ┗ 📜 vite.config.js
 ```
 
 ---
 
-## 🔌 API Endpoints
+## ⚙️ Installation & Setup
 
-| Method | Endpoint | Auth Required | Description |
-| :--- | :--- | :---: | :--- |
-| `POST` | `/api/analyze` | Yes (Bearer JWT) | Accepts a multipart file (PDF/DOCX). Verifies token with Supabase, extracts text, calls Gemini AI, saves to DB, and returns a JSON diagnostic report. |
+<details open>
+<summary><b>1. Clone the Repository</b></summary>
+<br>
 
-**Expected Gemini JSON Response Shape:**
-```json
-{
-    "ats_score": 85,
-    "score_label": "Excellent",
-    "keyword_synergy": {
-        "value": "14/20 Found",
-        "status": "success",
-        "description": "Strong match with industry standards."
-    },
-    "structural_integrity": { ... },
-    "action_velocity": { ... },
-    "metadata": { ... },
-    "directives": [
-        "Include more metrics in your experience bullets.",
-        "..."
-    ]
-}
+```bash
+git clone https://github.com/Nishanth2434/Resume-AI.git
+cd Resume-AI
 ```
+</details>
+
+<details open>
+<summary><b>2. Frontend Setup</b></summary>
+<br>
+
+```bash
+# Install Node dependencies
+npm install
+
+# Start the Vite development server
+npm run dev
+```
+</details>
+
+<details open>
+<summary><b>3. Backend Setup</b></summary>
+<br>
+
+```bash
+cd backend
+python -m venv venv
+
+# Activate virtual environment
+# Windows: .\venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
+
+pip install -r requirements.txt
+
+# Start the FastAPI server
+uvicorn main:app --reload --port 8000
+```
+*(Don't forget to create both `.env.local` and `backend/.env` files!)*
+</details>
 
 ---
 
-## 🔑 Environment Variables
-
-To run this project, you will need to add the following environment variables.
+## 🔐 Environment Variables
 
 ### Frontend (`.env.local`)
 | Variable | Type | Description |
@@ -172,61 +218,73 @@ To run this project, you will need to add the following environment variables.
 | Variable | Type | Description |
 | :--- | :--- | :--- |
 | `GEMINI_API_KEY` | **Required** | Google Generative AI API Key |
-| `SUPABASE_URL` | **Required** | Your Supabase Project URL (for backend inserts) |
+| `SUPABASE_URL` | **Required** | Your Supabase Project URL |
 | `SUPABASE_ANON_KEY` | **Required** | Your Supabase Anonymous Key |
-| `ALLOWED_ORIGINS` | Optional | Comma-separated list for CORS |
+| `ALLOWED_ORIGINS` | Optional | Comma-separated list for CORS (e.g. `http://localhost:5173`) |
 
 ---
 
-## 🚀 Installation & Setup
+## 🔌 API Endpoints
+
+| Method | Path | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | Public | Health check / API Root |
+| `POST` | `/api/analyze` | Public | Accepts a file upload (`resume_file`), parses it using PyMuPDF/Docx, and returns Gemini ATS feedback. |
+| `POST` | `/api/rewrite` | Authenticated | Accepts a bullet point and returns an ATS-optimized rewrite using Gemini. |
+| `POST` | `/api/cover-letter` | Authenticated | Fetches user's saved resume from Supabase, cross-references with a provided job description, and returns a tailored cover letter via Gemini. |
+| `POST` | `/api/parse-to-builder` | Public | Parses an uploaded document directly into a structured JSON payload for the Builder. |
+
+---
+
+## 🛡️ Security
+
+| Mechanism | Implementation |
+| :--- | :--- |
+| **Authentication** | Protected React Router wrapper (`<ProtectedRoute>`) ensuring only users with valid JWTs from Supabase can access the Builder or Cover Letter generator. |
+| **Database Isolation** | Row Level Security (RLS) on Supabase prevents users from accessing or modifying `resumeData` belonging to another `user_id`. |
+| **API Protection** | FastAPI endpoints require `Authorization: Bearer <token>` and validate the token directly with Supabase Admin SDK before executing operations. |
+| **CORS Filtering** | Backend restricts origin domains to trusted frontend URLs via FastAPI's `CORSMiddleware`. |
+
+---
+
+## 🚀 Future Improvements
+
+- [ ] **Templates Gallery:** Add a dozen more customizable PDF layouts.
+- [ ] **LinkedIn Import:** Allow users to directly import their profile JSON into the Builder.
+- [ ] **Grammar Engine:** Integrate a lightweight local NLP library to flag typos in the Builder before using the heavy Gemini API.
+
+---
+
+## 🤝 Contributing
 
 <details open>
-<summary><b>1. Clone the Repository</b></summary>
+<summary><b>Contribution Guidelines</b></summary>
+<br>
 
-```bash
-git clone https://github.com/Nishanth2434/Resume-AI.git
-cd Resume-AI
-```
-</details>
-
-<details open>
-<summary><b>2. Frontend Setup</b></summary>
-
-```bash
-npm install
-npm run dev
-```
-*(Don't forget to create your `.env.local` file!)*
-</details>
-
-<details open>
-<summary><b>3. Backend Setup</b></summary>
-
-```bash
-cd backend
-python -m venv venv
-# Activate virtual environment
-# Windows: .\venv\Scripts\activate
-# Mac/Linux: source venv/bin/activate
-
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
-*(Don't forget to create your `.env` file!)*
+1. Fork the project.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes using Conventional Commits (`git commit -m 'feat: Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 </details>
 
 ---
 
-## 📝 License
+<div align="center">
 
-Distributed under the MIT License. See `LICENSE` for more information.
+### Author
 
----
+**Nishanth B** - Full-Stack Developer
 
-## 👨‍💻 Author
 
-**Nishanth B**
+<a href="https://www.linkedin.com/in/nishanth-b-24b2006abc"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+<a href="https://github.com/Nishanth2434"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
+<a href="mailto:nishanthbnishu24@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/nishanth-b-24b2006a)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Nishanth2434)
-[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=About.me&logoColor=white)](#) <!-- Add your portfolio link -->
+<br/><br/>
+
+Made with ❤️ by **NISHANTH B**
+
+[Live Website](https://resume-ai-azure-two.vercel.app/) • [Features](#-features) • [Installation](#️-installation--setup) • [Contributing](#-contributing)
+
+</div>

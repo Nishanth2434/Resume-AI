@@ -1,17 +1,21 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { FileText, BarChart, Settings, Home as HomeIcon, Zap, LogIn, LogOut } from 'lucide-react';
+import { FileText, BarChart, Settings, Home as HomeIcon, Zap, LogIn, LogOut, Sun, Moon } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import Home from './pages/Home';
 import Analyzer from './pages/Analyzer';
 import Builder from './pages/Builder';
+import CoverLetter from './pages/CoverLetter';
 import Login from './pages/Login';
 import './index.css';
 
 // Create Authentication Context
 export const AuthContext = createContext(null);
-
 export const useAuth = () => useContext(AuthContext);
+
+// Create Theme Context
+export const ThemeContext = createContext(null);
+export const useTheme = () => useContext(ThemeContext);
 
 function ProtectedRoute({ children }) {
   const { session, loading } = useAuth();
@@ -31,7 +35,13 @@ function ProtectedRoute({ children }) {
 
 function Navbar() {
   const { session, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+
+  // Hide the entire Navbar on the login page
+  if (location.pathname.includes('/login')) {
+    return null;
+  }
 
   const isActive = (path) => location.pathname === path;
 
@@ -55,20 +65,27 @@ function Navbar() {
           <Link to="/build" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/build') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
             <FileText size={16} /> <span className="nav-desktop-text">Builder</span>
           </Link>
+          <Link to="/cover-letter" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/cover-letter') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
+            <FileText size={16} /> <span className="nav-desktop-text">Cover Letter</span>
+          </Link>
           
           <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }}></div>
+          
+          <button onClick={toggleTheme} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="nav-link" aria-label="Toggle Theme">
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           
           {session ? (
             <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="nav-link">
               <LogOut size={16} /> <span className="nav-desktop-text">Sign Out</span>
             </button>
-          ) : (
+          ) : !location.pathname.includes('/login') ? (
             <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }} className="nav-link">
               <LogIn size={16} /> <span className="nav-desktop-text">Sign In</span>
             </Link>
-          )}
+          ) : null}
 
-          {!session && (
+          {!session && !location.pathname.includes('/login') && (
             <Link to="/analyze" className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.9rem', borderRadius: 'var(--radius-pill)', textDecoration: 'none' }}>
               <span className="nav-desktop-text">Get Started</span>
               <span className="hidden-mobile" style={{ display: 'none' }}>Go</span>
@@ -158,6 +175,20 @@ function BackgroundEffects() {
 function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -179,34 +210,42 @@ function App() {
   };
 
   return (
-    <AuthContext.Provider value={{ session, loading, logout }}>
-      <Router>
-        <div className="app-container">
-          <BackgroundEffects />
-          <Navbar />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              
-              {/* Protected Routes */}
-              <Route path="/analyze" element={
-                <ProtectedRoute>
-                  <Analyzer />
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/build" element={
-                <ProtectedRoute>
-                  <Builder />
-                </ProtectedRoute>
-              } />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </AuthContext.Provider>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      <AuthContext.Provider value={{ session, loading, logout }}>
+        <Router>
+          <div className="app-container">
+            <BackgroundEffects />
+            <Navbar />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                
+                {/* Protected Routes */}
+                <Route path="/analyze" element={
+                  <ProtectedRoute>
+                    <Analyzer />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/build" element={
+                  <ProtectedRoute>
+                    <Builder />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/cover-letter" element={
+                  <ProtectedRoute>
+                    <CoverLetter />
+                  </ProtectedRoute>
+                } />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </AuthContext.Provider>
+    </ThemeContext.Provider>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Briefcase, GraduationCap, Code, Download, Eye, X, Trash2, Save } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Code, Download, Eye, X, Trash2, Save, Wand2, Loader2 } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import html2pdf from 'html2pdf.js';
 import { getCroppedImg } from '../utils/cropImage';
@@ -16,6 +16,8 @@ function Builder() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRewriting, setIsRewriting] = useState(null);
+  const [template, setTemplate] = useState('modern');
 
   // Resume Data State
   const [resumeData, setResumeData] = useState({
@@ -131,6 +133,39 @@ function Builder() {
     setResumeData({ ...resumeData, experience: newExp });
   };
 
+  const handleRewrite = async (index) => {
+    const textToRewrite = resumeData.experience[index].bullets;
+    if (!textToRewrite) return;
+    
+    setIsRewriting(index);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session ? session.access_token : '';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      
+      const response = await fetch(`${apiUrl}/api/rewrite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ bullet: textToRewrite })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        handleExperienceChange(index, 'bullets', data.rewritten);
+      } else {
+        alert("Rewrite failed. Check your login and try again.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error: " + e.message);
+    } finally {
+      setIsRewriting(null);
+    }
+  };
+
   const appendExperience = () => {
     setResumeData({
       ...resumeData,
@@ -200,7 +235,12 @@ function Builder() {
           <h1 style={{ fontSize: '3rem', margin: 0, letterSpacing: '-0.03em' }}>Resume <span className="text-gradient">Studio</span></h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginTop: '0.5rem' }}>Engineer a recruiter-approved document.</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <select value={template} onChange={(e) => setTemplate(e.target.value)} style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <option value="modern" style={{color:'black'}}>Modern Template</option>
+            <option value="classic" style={{color:'black'}}>Classic Executive</option>
+            <option value="creative" style={{color:'black'}}>Creative Template</option>
+          </select>
           <button className="btn btn-secondary" onClick={saveResume} disabled={isSaving} style={{ padding: '0.75rem 1.5rem' }}>
             <Save size={18} style={{ marginRight: '0.5rem' }} /> {isSaving ? 'Saving...' : 'Save Resume'}
           </button>
@@ -284,8 +324,17 @@ function Builder() {
                       <FormGroup label="Commencement" type="month" value={exp.startDate} onChange={(e) => handleExperienceChange(index, 'startDate', e.target.value)} />
                       <FormGroup label="Conclusion" type="text" placeholder="Present" value={exp.endDate} onChange={(e) => handleExperienceChange(index, 'endDate', e.target.value)} />
                     </div>
-                    <FormGroup label="Impact & Deliverables (Bullet points)" type="textarea" placeholder="- Developed and executed comprehensive marketing strategies..." rows={6} value={exp.bullets} onChange={(e) => handleExperienceChange(index, 'bullets', e.target.value)} />
-                  </div>
+                      <div style={{ position: 'relative' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
+                          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Impact & Deliverables (Bullet points)</span>
+                          <button onClick={() => handleRewrite(index)} disabled={isRewriting === index} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--gradient-mesh)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            {isRewriting === index ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />} 
+                            {isRewriting === index ? 'Rewriting...' : 'AI Magic Rewrite'}
+                          </button>
+                        </div>
+                        <FormGroup type="textarea" placeholder="- Developed and executed comprehensive marketing strategies..." rows={6} value={exp.bullets} onChange={(e) => handleExperienceChange(index, 'bullets', e.target.value)} />
+                      </div>
+                    </div>
                 ))}
               </div>
             </div>
@@ -336,7 +385,7 @@ function Builder() {
       {/* HIDDEN RENDER FOR PDF EXPORT */}
       <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden' }}>
         <div ref={previewRef}>
-          <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} />
+          <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} template={template} />
         </div>
       </div>
 
@@ -358,7 +407,7 @@ function Builder() {
             </div>
             <div style={{ flex: 1, overflowY: 'auto', background: '#d1d5db', display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
               <div style={{ transform: 'scale(0.85)', transformOrigin: 'top center', marginBottom: '-15%' }}>
-                <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} />
+                <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} template={template} />
               </div>
             </div>
           </div>
@@ -369,133 +418,114 @@ function Builder() {
 }
 
 // Extracted Component for Resume Rendering
-function ResumePreview({ data, photoURL }) {
+function ResumePreview({ data, photoURL, template }) {
   const p = data.personal;
+  const primarySkills = data.skills.length > 0 ? data.skills.filter(s => s.trim()) : ['Project Management', 'Public Relations', 'Teamwork', 'Time Management', 'Leadership', 'Effective Communication'];
   
-  // Format primary skills (split by comma, fallback to placeholders if empty)
-  const primarySkills = data.skills.primary ? data.skills.primary.split(',').map(s => s.trim()) : ['Project Management', 'Public Relations', 'Teamwork', 'Time Management', 'Leadership', 'Effective Communication'];
-  
+  const themeConfig = {
+    modern: { sidebar: '#e5e7eb', sidebarText: '#475569', mainHeader: '#353945', headerText: '#ffffff', font: '""Inter"", sans-serif', accent: '#3b82f6', rightBg: '#ffffff' },
+    classic: { sidebar: '#ffffff', sidebarText: '#000000', mainHeader: '#ffffff', headerText: '#000000', font: '""Times New Roman"", serif', accent: '#000000', border: '1px solid #ccc', rightBg: '#ffffff' },
+    creative: { sidebar: '#fce7f3', sidebarText: '#831843', mainHeader: '#db2777', headerText: '#ffffff', font: '""Outfit"", sans-serif', accent: '#db2777', rightBg: '#fff1f2' }
+  };
+  const t = themeConfig[template] || themeConfig.modern;
+
   return (
-    <div style={{ 
-      width: '794px', /* A4 width */
-      minHeight: '1123px', /* A4 height */
-      background: 'white', 
-      color: '#333',
-      display: 'flex',
-      fontFamily: '"Inter", sans-serif',
-      overflow: 'hidden',
-      boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-      position: 'relative',
-      boxSizing: 'border-box'
+    <div id="resume-preview-container" style={{ 
+      width: '794px', minHeight: '1123px', background: t.rightBg, color: '#333',
+      display: 'flex', fontFamily: t.font, overflow: 'hidden',
+      boxShadow: '0 10px 25px rgba(0,0,0,0.2)', boxSizing: 'border-box'
     }}>
-      {/* Header Spacer */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, height: '180px',
-        backgroundColor: '#353945', zIndex: 1
-      }}></div>
 
       {/* Left Sidebar */}
       <div style={{
-        width: '32%', backgroundColor: '#e5e7eb', padding: '180px 2rem 2rem 2rem',
-        position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: '2rem'
+        width: '32%', backgroundColor: t.sidebar, padding: '40px 2rem 2rem 2rem',
+        borderRight: t.border || 'none', display: 'flex', flexDirection: 'column', gap: '2rem'
       }}>
-        <div style={{
-          width: '180px', height: '180px', borderRadius: '50%', backgroundColor: '#fff',
-          position: 'absolute', top: '40px', left: '50%', transform: 'translateX(-50%)',
-          border: '6px solid #e5e7eb', zIndex: 10, overflow: 'hidden',
-          display: 'flex', justifyContent: 'center', alignItems: 'center'
-        }}>
-          <img src={photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
+        {photoURL ? (
+          <div style={{
+            width: '180px', height: '180px', borderRadius: '50%', backgroundColor: '#fff',
+            margin: '0 auto', border: "6px solid " + t.sidebar, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', overflow: 'hidden',
+            display: 'flex', justifyContent: 'center', alignItems: 'center'
+          }}>
+            <img src={photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        ) : (
+          <div style={{ height: '140px' }}></div>
+        )}
 
-        <div style={{ marginTop: '40px' }}>
-          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem' }}>CONTACT</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: '#334155' }}>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📞</span> {p.phone || '+123-456-7890'}</div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: '#d8b4e2'}}>✉️</span> {p.email || 'hello@reallygreatsite.com'}</div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📍</span> {p.location || '123 Anywhere St., Any City'}</div>
-            {p.linkedin && <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: '#3b82f6'}}>🌐</span> {p.linkedin}</div>}
+        <div style={{ marginTop: photoURL ? '10px' : '0' }}>
+          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: t.accent, borderBottom: "2px solid " + t.accent, paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>CONTACT</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: t.sidebarText }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: t.accent}}>&#9742;</span> {p.phone || '+123-456-7890'}</div>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: t.accent}}>&#9993;</span> {p.email || 'hello@reallygreatsite.com'}</div>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: t.accent}}>&#9906;</span> {p.location || '123 Anywhere St., Any City'}</div>
+            {p.linkedin && <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: t.accent}}>in</span> {p.linkedin}</div>}
           </div>
         </div>
 
         <div>
-          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
-          <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
+          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: t.accent, borderBottom: "2px solid " + t.accent, paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
+          <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: t.sidebarText, display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
             {primarySkills.map((skill, idx) => (
               <li key={idx}>{skill}</li>
             ))}
           </ul>
         </div>
-        
-        <div>
-          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>LANGUAGES</h3>
-          <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
-            <li>English (Fluent)</li>
-            <li>Spanish (Intermediate)</li>
-          </ul>
-        </div>
       </div>
 
       {/* Right Main Content */}
-      <div style={{
-        width: '68%', backgroundColor: '#ffffff', position: 'relative', zIndex: 2, padding: '50px 3rem 3rem 2rem'
-      }}>
-        <div style={{ height: '110px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#ffffff', textShadow: '1px 1px 4px rgba(0,0,0,0.4)', textTransform: 'uppercase' }}>
+      <div style={{ width: '68%', display: 'flex', flexDirection: 'column' }}>
+        {/* Header Block */}
+        <div style={{ 
+          backgroundColor: t.mainHeader, padding: '50px 3rem 40px 2rem', 
+          borderBottom: t.border ? '1px solid #ccc' : 'none'
+        }}>
+          <h1 style={{ margin: 0, fontSize: '2.8rem', letterSpacing: '2px', color: t.headerText, textTransform: 'uppercase', fontWeight: 800 }}>
             {p.name || 'RICHARD SANCHEZ'}
           </h1>
-          <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#cbd5e1', fontWeight: 600 }}>
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '1.2rem', letterSpacing: '3px', textTransform: 'uppercase', color: t.accent, fontWeight: 600 }}>
             {p.title || 'Marketing Manager'}
           </p>
         </div>
 
-        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {/* Content Block */}
+        <div style={{ padding: '3rem 3rem 3rem 2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-              <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#b9514e', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>👤</div>
-              <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
-            </div>
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '0.5rem', color: '#101c56', fontWeight: 700 }}>PROFILE</h3>
-              <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: '#475569', whiteSpace: 'pre-line' }}>
+              <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '0.5rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>PROFILE</h3>
+              <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#333', whiteSpace: 'pre-line', marginTop: '1rem' }}>
                 {p.summary || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.'}
               </p>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-              <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#c97750', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>💼</div>
-              <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
-            </div>
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>WORK EXPERIENCE</h3>
+              <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>WORK EXPERIENCE</h3>
               
               {data.experience.length === 1 && !data.experience[0].role ? (
-                <>
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Borcelle Studio</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2030 - PRESENT</span>
-                    </div>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                      <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
-                      <li>Lead, mentor, and manage a high-performing marketing team.</li>
-                    </ul>
+                <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                    <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>Borcelle Studio</h4>
+                    <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>2030 - PRESENT</span>
                   </div>
-                </>
+                  <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
+                  <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
+                    <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
+                    <li>Lead, mentor, and manage a high-performing marketing team.</li>
+                  </ul>
+                </div>
               ) : (
                 data.experience.map((exp, idx) => (
-                  <div key={idx} style={{ marginBottom: '1.5rem' }}>
+                  <div key={idx} style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>{exp.company || 'Company'}</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>{exp.startDate} - {exp.endDate}</span>
+                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{exp.company || 'Company'}</h4>
+                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{exp.startDate} - {exp.endDate}</span>
                     </div>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>{exp.role}</p>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>{exp.role}</p>
                     {exp.bullets && (
-                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
+                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
                         {exp.bullets.split('\n').filter(b => b.trim()).map((bullet, bIdx) => (
                           <li key={bIdx}>{bullet.replace(/^-/, '').trim()}</li>
                         ))}
@@ -508,28 +538,25 @@ function ResumePreview({ data, photoURL }) {
           </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-              <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>🎓</div>
-            </div>
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>EDUCATION</h3>
+              <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>EDUCATION</h3>
               
               {data.education.length === 1 && !data.education[0].degree ? (
-                <div style={{ marginBottom: '1rem' }}>
+                <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                    <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Master of Business Management</h4>
-                    <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2031</span>
+                    <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>Master of Business Management</h4>
+                    <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>2031</span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>Wardiere University<br/>GPA: 3.8 / 4.0</p>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#333' }}>Wardiere University<br/>GPA: 3.8 / 4.0</p>
                 </div>
               ) : (
                 data.education.map((edu, idx) => (
-                  <div key={idx} style={{ marginBottom: '1rem' }}>
+                  <div key={idx} style={{ marginBottom: '1rem', marginTop: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>{edu.degree || 'Degree'}</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>{edu.year}</span>
+                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{edu.degree || 'Degree'}</h4>
+                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{edu.year}</span>
                     </div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>{edu.institution}{edu.gpa ? <><br/>GPA: {edu.gpa}</> : null}</p>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#333' }}>{edu.institution}{edu.gpa ? <><br/>GPA: {edu.gpa}</> : null}</p>
                   </div>
                 ))
               )}
@@ -541,6 +568,7 @@ function ResumePreview({ data, photoURL }) {
     </div>
   );
 }
+
 
 function FormGroup({ label, type, placeholder, rows, value, onChange }) {
   const inputStyle = {

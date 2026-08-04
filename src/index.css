@@ -374,3 +374,29 @@ a { text-decoration: none; color: inherit; }
   .app-header { padding: 0.5rem; }
 }
 
+
+/* Light Theme Overrides */
+.light-theme {
+  --bg-base: #f9fafb;
+  --bg-surface: rgba(255, 255, 255, 0.7);
+  --bg-surface-hover: rgba(243, 244, 246, 0.8);
+  
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+  
+  --accent-cyan: #0891b2;
+  --accent-blue: #2563eb;
+  --accent-purple: #7c3aed;
+  --accent-pink: #db2777;
+  
+  --gradient-glass: linear-gradient(145deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+  
+  --glass-border: 1px solid rgba(0, 0, 0, 0.05);
+  --glass-border-top: 1px solid rgba(255, 255, 255, 0.8);
+  
+  --shadow-ambient: 0 0 40px rgba(139, 92, 246, 0.05);
+  --shadow-elevated: 0 20px 40px -10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
