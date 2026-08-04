@@ -38,7 +38,6 @@ function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
-  // Hide the entire Navbar on the login page
   if (location.pathname.includes('/login')) {
     return null;
   }
@@ -46,54 +45,76 @@ function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="app-header">
-      <div className="glass-panel navbar-panel">
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
-          <div style={{ background: 'var(--gradient-mesh)', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)' }}>
-            <img src="/logo.jpg" alt="Logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
-          </div>
-          <span className="brand-text">SmartResume<span className="text-gradient">AI</span></span>
-        </Link>
-        
-        <nav className="nav-container">
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
-            <HomeIcon size={16} /> <span className="nav-desktop-text">Home</span>
-          </Link>
-          <Link to="/analyze" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/analyze') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
-            <BarChart size={16} /> <span className="nav-desktop-text">Analyzer</span>
-          </Link>
-          <Link to="/build" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/build') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
-            <FileText size={16} /> <span className="nav-desktop-text">Builder</span>
-          </Link>
-          <Link to="/cover-letter" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/cover-letter') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
-            <FileText size={16} /> <span className="nav-desktop-text">Cover Letter</span>
+    <>
+      <header className="app-header">
+        <div className="glass-panel navbar-panel">
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
+            <div style={{ background: 'var(--gradient-mesh)', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)' }}>
+              <img src="/logo.jpg" alt="Logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
+            </div>
+            <span className="brand-text">SmartResume<span className="text-gradient">AI</span></span>
           </Link>
           
-          <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }}></div>
-          
-          <button onClick={toggleTheme} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="nav-link" aria-label="Toggle Theme">
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-          
-          {session ? (
-            <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="nav-link">
-              <LogOut size={16} /> <span className="nav-desktop-text">Sign Out</span>
-            </button>
-          ) : !location.pathname.includes('/login') ? (
-            <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }} className="nav-link">
-              <LogIn size={16} /> <span className="nav-desktop-text">Sign In</span>
-            </Link>
-          ) : null}
+          <div className="top-actions-container">
+            <nav className="desktop-nav-links">
+              <Link to="/" className={`nav-link ${isActive('/') ? 'active-link' : ''}`}>
+                <HomeIcon size={16} /> <span>Home</span>
+              </Link>
+              <Link to="/analyze" className={`nav-link ${isActive('/analyze') ? 'active-link' : ''}`}>
+                <BarChart size={16} /> <span>Analyzer</span>
+              </Link>
+              <Link to="/build" className={`nav-link ${isActive('/build') ? 'active-link' : ''}`}>
+                <FileText size={16} /> <span>Builder</span>
+              </Link>
+              <Link to="/cover-letter" className={`nav-link ${isActive('/cover-letter') ? 'active-link' : ''}`}>
+                <FileText size={16} /> <span>Cover Letter</span>
+              </Link>
+            </nav>
 
-          {!session && !location.pathname.includes('/login') && (
-            <Link to="/analyze" className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.9rem', borderRadius: 'var(--radius-pill)', textDecoration: 'none' }}>
-              <span className="nav-desktop-text">Get Started</span>
-              <span className="hidden-mobile" style={{ display: 'none' }}>Go</span>
-            </Link>
-          )}
-        </nav>
-      </div>
-    </header>
+            <div className="nav-divider"></div>
+            
+            <button onClick={toggleTheme} className="nav-link icon-btn" aria-label="Toggle Theme" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)' }}>
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            
+            {session ? (
+              <button onClick={logout} className="nav-link icon-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
+                <LogOut size={16} /> <span className="nav-desktop-text">Sign Out</span>
+              </button>
+            ) : (
+              <Link to="/login" className="nav-link icon-btn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none' }}>
+                <LogIn size={16} /> <span className="nav-desktop-text">Sign In</span>
+              </Link>
+            )}
+
+            {!session && (
+              <Link to="/analyze" className="btn btn-primary nav-desktop-text" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: 'var(--radius-pill)', textDecoration: 'none', marginLeft: '0.5rem' }}>
+                Get Started
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <nav className="mobile-bottom-nav">
+        <Link to="/" className={`mobile-nav-item ${isActive('/') ? 'active-link' : ''}`}>
+          <HomeIcon size={20} />
+          <span>Home</span>
+        </Link>
+        <Link to="/analyze" className={`mobile-nav-item ${isActive('/analyze') ? 'active-link' : ''}`}>
+          <BarChart size={20} />
+          <span>Analyze</span>
+        </Link>
+        <Link to="/build" className={`mobile-nav-item ${isActive('/build') ? 'active-link' : ''}`}>
+          <FileText size={20} />
+          <span>Builder</span>
+        </Link>
+        <Link to="/cover-letter" className={`mobile-nav-item ${isActive('/cover-letter') ? 'active-link' : ''}`}>
+          <FileText size={20} />
+          <span>Cover</span>
+        </Link>
+      </nav>
+    </>
   );
 }
 
