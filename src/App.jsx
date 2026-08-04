@@ -31,6 +31,9 @@ function ProtectedRoute({ children }) {
 
 function Navbar() {
   const { session, logout } = useAuth();
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 50, padding: '1rem 2rem' }}>
@@ -41,38 +44,44 @@ function Navbar() {
         borderRadius: 'var(--radius-pill)',
         display: 'flex', 
         justifyContent: 'space-between', 
-        alignItems: 'center' 
+        alignItems: 'center',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)'
       }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
           <div style={{ background: 'var(--gradient-mesh)', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)' }}>
-            <img src="https://github.com/user-attachments/assets/76906dbc-343d-4267-ace5-048d428fff42" alt="Logo" style={{ width: '24px', height: '24px', filter: 'brightness(0) invert(1)' }} />
+            <img src="https://img.icons8.com/color/512/resume.png" alt="Logo" style={{ width: '28px', height: '28px' }} />
           </div>
-          <span style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>SmartResume</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>SmartResume<span className="text-gradient">AI</span></span>
         </Link>
-        <nav style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
-            Home
+        
+        <nav style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
+            <HomeIcon size={16} /> Home
           </Link>
-          <Link to="/analyze" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
-            Analyzer
+          <Link to="/analyze" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/analyze') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
+            <BarChart size={16} /> Analyzer
           </Link>
-          <Link to="/build" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
-            Builder
+          <Link to="/build" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/build') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
+            <FileText size={16} /> Builder
           </Link>
           
+          <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }}></div>
+          
           {session ? (
-            <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
-              Sign Out
+            <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="nav-link">
+              <LogOut size={16} /> Sign Out
             </button>
           ) : (
-            <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
-              Sign In
+            <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }} className="nav-link">
+              <LogIn size={16} /> Sign In
             </Link>
           )}
 
-          <Link to="/analyze" className="btn btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}>
-            Get Started
-          </Link>
+          {!session && (
+            <Link to="/analyze" className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.9rem', borderRadius: 'var(--radius-pill)', textDecoration: 'none' }}>
+              Get Started
+            </Link>
+          )}
         </nav>
       </div>
     </header>
@@ -81,14 +90,63 @@ function Navbar() {
 
 function Footer() {
   return (
-    <footer style={{ padding: '4rem 2rem', textAlign: 'center', marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-        <div style={{ background: 'var(--gradient-mesh)', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', opacity: 0.5 }}>
-          <img src="https://github.com/user-attachments/assets/76906dbc-343d-4267-ace5-048d428fff42" alt="Logo" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
+    <footer style={{ background: 'rgba(10, 10, 15, 0.8)', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '4rem 2rem 2rem 2rem', marginTop: 'auto', backdropFilter: 'blur(20px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '3rem' }}>
+        
+        {/* Brand Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <img src="https://img.icons8.com/color/512/resume.png" alt="Logo" style={{ width: '32px', height: '32px' }} />
+            <span style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>SmartResume<span className="text-gradient">AI</span></span>
+          </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+            Decode your resume, optimize for Applicant Tracking Systems, and build a recruiter-approved profile with the power of Gemini AI.
+          </p>
         </div>
-        <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
-          © {new Date().getFullYear()} SmartResume AI. Elevate your career.
+
+        {/* Links Column 1 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h4 style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Product</h4>
+          <Link to="/analyze" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">AI Analyzer</Link>
+          <Link to="/build" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Resume Builder</Link>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">ATS Templates</Link>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Pricing (Free)</Link>
+        </div>
+
+        {/* Links Column 2 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h4 style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Resources</h4>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Blog & Tips</Link>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Help Center</Link>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Career Guide</Link>
+          <a href="https://github.com/Nishanth2434/Resume-AI" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">GitHub Repo</a>
+        </div>
+
+        {/* Links Column 3 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <h4 style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Legal</h4>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Privacy Policy</Link>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Terms of Service</Link>
+          <Link to="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} className="nav-link">Cookie Policy</Link>
+        </div>
+      </div>
+      
+      {/* Bottom Bar */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem', margin: 0 }}>
+          © {new Date().getFullYear()} SmartResume AI. Designed by Nishanth B.
         </p>
+        <div style={{ display: 'flex', gap: '1.5rem' }}>
+          <a href="https://linkedin.com/in/nishanth-b-24b2006a" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-tertiary)', transition: 'color 0.2s' }} className="nav-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+          </a>
+          <a href="https://github.com/Nishanth2434" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-tertiary)', transition: 'color 0.2s' }} className="nav-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          </a>
+          <a href="mailto:nishanthbnishu24@gmail.com" style={{ color: 'var(--text-tertiary)', transition: 'color 0.2s' }} className="nav-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          </a>
+        </div>
       </div>
     </footer>
   );
