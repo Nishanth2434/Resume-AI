@@ -4,6 +4,7 @@ import Cropper from 'react-easy-crop';
 import html2pdf from 'html2pdf.js';
 import { getCroppedImg } from '../utils/cropImage';
 import { supabase } from '../lib/supabase';
+import { ModernTemplate, ClassicTemplate, CreativeTemplate } from '../components/ResumeTemplates';
 
 function Builder() {
   const [activeTab, setActiveTab] = useState('personal');
@@ -17,7 +18,7 @@ function Builder() {
   const [isCropping, setIsCropping] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRewriting, setIsRewriting] = useState(null);
-  const [template, setTemplate] = useState('modern');
+  const [selectedTemplate, setSelectedTemplate] = useState('modern');
 
   // Resume Data State
   const [resumeData, setResumeData] = useState({
@@ -156,11 +157,12 @@ function Builder() {
     const element = previewRef.current;
     
     const opt = {
-      margin:       0,
-      filename:     'Resume.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      margin: 0,
+      filename: 'resume.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { avoid: 'all' }
     };
 
     html2pdf().set(opt).from(element).save();
@@ -297,7 +299,7 @@ function Builder() {
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginTop: '0.5rem' }}>Engineer a recruiter-approved document.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <select value={template} onChange={(e) => setTemplate(e.target.value)} style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <select value={selectedTemplate} onChange={(e) => { setSelectedTemplate(e.target.value); setResumeData(prev => ({...prev, template: e.target.value})); }} style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.1)' }}>
             <option value="modern" style={{color:'black'}}>Modern Template</option>
             <option value="classic" style={{color:'black'}}>Classic Executive</option>
             <option value="creative" style={{color:'black'}}>Creative Template</option>
@@ -520,7 +522,7 @@ function Builder() {
       {/* HIDDEN RENDER FOR PDF EXPORT */}
       <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden' }}>
         <div ref={previewRef}>
-          <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} template={template} />
+          <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} template={selectedTemplate} />
         </div>
       </div>
 
@@ -542,7 +544,7 @@ function Builder() {
             </div>
             <div style={{ flex: 1, overflowY: 'auto', background: '#d1d5db', display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
               <div style={{ transform: 'scale(0.85)', transformOrigin: 'top center', marginBottom: '-15%' }}>
-                <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} template={template} />
+                <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} template={selectedTemplate} />
               </div>
             </div>
           </div>
@@ -554,212 +556,15 @@ function Builder() {
 
 // Extracted Component for Resume Rendering
 function ResumePreview({ data, photoURL, template }) {
-  const p = data.personal;
-  const primarySkills = data.skills?.primary ? data.skills.primary.split(',').filter(s => s.trim()) : ['Project Management', 'Public Relations', 'Teamwork', 'Time Management', 'Leadership'];
-  
-  const themeConfig = {
-    modern: { sidebar: '#e5e7eb', sidebarText: '#475569', mainHeader: '#353945', headerText: '#ffffff', font: '"Inter", sans-serif', accent: '#3b82f6', rightBg: '#ffffff' },
-    classic: { sidebar: '#ffffff', sidebarText: '#000000', mainHeader: '#ffffff', headerText: '#000000', font: '"Times New Roman", serif', accent: '#000000', border: '1px solid #ccc', rightBg: '#ffffff' },
-    creative: { sidebar: '#fce7f3', sidebarText: '#831843', mainHeader: '#db2777', headerText: '#ffffff', font: '"Outfit", sans-serif', accent: '#db2777', rightBg: '#fff1f2' }
-  };
-  const t = themeConfig[template] || themeConfig.modern;
-
-  const isFresher = data.resumeType === 'fresher';
-  const hasIntern = data.hasInternship === true;
-
-  return (
-    <div id="resume-preview-container" style={{ 
-      width: '794px', minHeight: '1123px', background: t.rightBg, color: '#333',
-      display: 'flex', fontFamily: t.font, overflow: 'hidden',
-      boxShadow: '0 10px 25px rgba(0,0,0,0.2)', boxSizing: 'border-box'
-    }}>
-
-      {/* Left Sidebar */}
-      <div style={{
-        width: '32%', backgroundColor: t.sidebar, padding: '40px 2rem 2rem 2rem',
-        borderRight: t.border || 'none', display: 'flex', flexDirection: 'column', gap: '2rem'
-      }}>
-        {photoURL ? (
-          <div style={{
-            width: '180px', height: '180px', borderRadius: '50%', backgroundColor: '#fff',
-            margin: '0 auto', border: "6px solid " + t.sidebar, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', overflow: 'hidden',
-            display: 'flex', justifyContent: 'center', alignItems: 'center'
-          }}>
-            <img src={photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-        ) : (
-          <div style={{ height: '140px' }}></div>
-        )}
-
-        <div style={{ marginTop: photoURL ? '10px' : '0' }}>
-          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: t.accent, borderBottom: "2px solid " + t.accent, paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>CONTACT</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: t.sidebarText }}>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: t.accent}}>&#9742;</span> {p.phone || '+123-456-7890'}</div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: t.accent}}>&#9993;</span> {p.email || 'hello@reallygreatsite.com'}</div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: t.accent}}>&#9906;</span> {p.location || '123 Anywhere St., Any City'}</div>
-            {p.linkedin && <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: t.accent}}>in</span> {p.linkedin}</div>}
-          </div>
-        </div>
-
-        <div>
-          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: t.accent, borderBottom: "2px solid " + t.accent, paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
-          <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: t.sidebarText, display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
-            {primarySkills.map((skill, idx) => (
-              <li key={idx}>{skill}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* Right Main Content */}
-      <div style={{ width: '68%', display: 'flex', flexDirection: 'column' }}>
-        {/* Header Block */}
-        <div style={{ 
-          backgroundColor: t.mainHeader, padding: '50px 3rem 40px 2rem', 
-          borderBottom: t.border ? '1px solid #ccc' : 'none'
-        }}>
-          <h1 style={{ margin: 0, fontSize: '2.8rem', letterSpacing: '2px', color: t.headerText, textTransform: 'uppercase', fontWeight: 800 }}>
-            {p.name || 'RICHARD SANCHEZ'}
-          </h1>
-          <p style={{ margin: '0.5rem 0 0 0', fontSize: '1.2rem', letterSpacing: '3px', textTransform: 'uppercase', color: t.accent, fontWeight: 600 }}>
-            {p.title || 'Marketing Manager'}
-          </p>
-        </div>
-
-        {/* Content Block */}
-        <div style={{ padding: '3rem 3rem 3rem 2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '0.5rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>PROFILE</h3>
-              <p style={{ fontSize: '0.9rem', lineHeight: 1.6, color: '#333', whiteSpace: 'pre-line', marginTop: '1rem' }}>
-                {p.summary || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.'}
-              </p>
-            </div>
-          </div>
-
-          {/* Work Experience / Internships */}
-          {(!isFresher || (isFresher && hasIntern)) && (
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>
-                  {isFresher ? 'INTERNSHIPS' : 'WORK EXPERIENCE'}
-                </h3>
-                
-                {data.experience.length === 1 && !data.experience[0].role ? (
-                  <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>Borcelle Studio</h4>
-                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>2030 - PRESENT</span>
-                    </div>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>Marketing Manager</p>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
-                      <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
-                      <li>Lead, mentor, and manage a high-performing marketing team.</li>
-                    </ul>
-                  </div>
-                ) : (
-                  data.experience.map((exp, idx) => (
-                    <div key={idx} style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                        <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{exp.company || 'Company'}</h4>
-                        <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{exp.startDate} - {exp.endDate}</span>
-                      </div>
-                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>{exp.role}</p>
-                      {exp.bullets && (
-                        <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
-                          {exp.bullets.split('\n').filter(b => b.trim()).map((bullet, bIdx) => (
-                            <li key={bIdx}>{bullet.replace(/^-/, '').trim()}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Projects */}
-          {isFresher && (
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>
-                  PROJECTS
-                </h3>
-                
-                {data.projects.length === 1 && !data.projects[0].title ? (
-                  <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>E-Commerce Platform</h4>
-                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>Jan 2024 - Present</span>
-                    </div>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>React, Node.js, MongoDB</p>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
-                      <li>Developed a full-stack e-commerce solution with user authentication and payment integration.</li>
-                    </ul>
-                  </div>
-                ) : (
-                  data.projects.map((proj, idx) => (
-                    <div key={idx} style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                        <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{proj.title || 'Project'}</h4>
-                        <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{proj.startDate} - {proj.endDate}</span>
-                      </div>
-                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#444', fontStyle: 'italic' }}>
-                        {proj.techStack}
-                        {proj.link && <span style={{ marginLeft: '1rem' }}><LinkIcon size={12}/> {proj.link}</span>}
-                      </p>
-                      {proj.bullets && (
-                        <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.9rem', color: '#333', lineHeight: 1.5 }}>
-                          {proj.bullets.split('\n').filter(b => b.trim()).map((bullet, bIdx) => (
-                            <li key={bIdx}>{bullet.replace(/^-/, '').trim()}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Education */}
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.2rem', letterSpacing: '2px', marginBottom: '1rem', color: t.accent, fontWeight: 700, borderBottom: "1px solid " + t.accent, paddingBottom: '0.5rem' }}>EDUCATION</h3>
-              
-              {data.education.length === 1 && !data.education[0].degree ? (
-                <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                    <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>Master of Business Management</h4>
-                    <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>2031</span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#333' }}>Wardiere University<br/>GPA: 3.8 / 4.0</p>
-                </div>
-              ) : (
-                data.education.map((edu, idx) => (
-                  <div key={idx} style={{ marginBottom: '1rem', marginTop: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#111', fontWeight: 700 }}>{edu.degree || 'Degree'}</h4>
-                      <span style={{ fontSize: '0.85rem', color: t.accent, fontWeight: 600 }}>{edu.year}</span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#333' }}>{edu.institution}{edu.gpa ? <><br/>GPA: {edu.gpa}</> : null}</p>
-                    {isFresher && edu.coursework && (
-                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#555', fontStyle: 'italic' }}>
-                        <span style={{ fontWeight: 600 }}>Coursework:</span> {edu.coursework}
-                      </p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  );
+  switch (template) {
+    case 'classic':
+      return <ClassicTemplate data={data} photoURL={photoURL} />;
+    case 'creative':
+      return <CreativeTemplate data={data} photoURL={photoURL} />;
+    case 'modern':
+    default:
+      return <ModernTemplate data={data} photoURL={photoURL} />;
+  }
 }
 
 function FormGroup({ label, type, placeholder, rows, value, onChange }) {
