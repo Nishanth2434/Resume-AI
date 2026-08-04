@@ -1,6 +1,7 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { FileText, BarChart, Settings, Home as HomeIcon, Zap, LogIn, LogOut } from 'lucide-react';
+import { supabase } from './lib/supabase';
 import Home from './pages/Home';
 import Analyzer from './pages/Analyzer';
 import Builder from './pages/Builder';
@@ -13,10 +14,14 @@ export const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+  const { session, loading } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  if (loading) {
+    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
+  }
+
+  if (!session) {
     // Redirect them to the /login page, but save the current location they were trying to go to
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -25,7 +30,7 @@ function ProtectedRoute({ children }) {
 }
 
 function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { session, logout } = useAuth();
 
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 50, padding: '1rem 2rem' }}>
@@ -55,7 +60,7 @@ function Navbar() {
             Builder
           </Link>
           
-          {isAuthenticated ? (
+          {session ? (
             <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)' }} className="nav-link">
               Sign Out
             </button>
@@ -101,13 +106,30 @@ function BackgroundEffects() {
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = () => setIsAuthenticated(true);
-  const logout = () => setIsAuthenticated(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ session, loading, logout }}>
       <Router>
         <div className="app-container">
           <BackgroundEffects />
