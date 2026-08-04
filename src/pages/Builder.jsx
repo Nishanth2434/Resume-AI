@@ -113,7 +113,7 @@ function Builder() {
 
       <div className="bento-grid" style={{ minHeight: '700px' }}>
         {/* Sidebar Tabs */}
-        <div className="glass-panel animate-fade-in-up stagger-1" style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 1024px)': { gridColumn: 'span 3 / span 3' }, padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div className="glass-panel animate-fade-in-up stagger-1 col-12 lg-col-3" style={{ padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -139,7 +139,7 @@ function Builder() {
         </div>
 
         {/* Form Area */}
-        <div className="glass-panel animate-fade-in-up stagger-2" style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 1024px)': { gridColumn: 'span 9 / span 9' }, padding: '4rem' }}>
+        <div className="glass-panel animate-fade-in-up stagger-2 col-12 lg-col-9" style={{ padding: '4rem' }}>
           {activeTab === 'personal' && (
             <div className="animate-scale-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>

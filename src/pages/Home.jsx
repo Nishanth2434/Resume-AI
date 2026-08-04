@@ -37,7 +37,7 @@ function Home() {
         
         <div className="bento-grid">
           {/* Main Feature - Large */}
-          <div className="glass-panel glass-panel-hover" style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 768px)': { gridColumn: 'span 8 / span 8' }, padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-8" style={{ padding: '4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, var(--accent-cyan), transparent 60%)', filter: 'blur(60px)', opacity: 0.2, zIndex: 0 }}></div>
             <div style={{ zIndex: 1, position: 'relative' }}>
               <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)', display: 'inline-flex', padding: '1.2rem', borderRadius: '1.2rem', marginBottom: '2rem' }}>
@@ -51,7 +51,7 @@ function Home() {
           </div>
 
           {/* Side Feature 1 - Medium */}
-          <div className="glass-panel glass-panel-hover" style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 768px)': { gridColumn: 'span 4 / span 4' }, padding: '3rem', display: 'flex', flexDirection: 'column' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-4" style={{ padding: '3rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', display: 'inline-flex', padding: '1rem', borderRadius: '1rem', alignSelf: 'flex-start', marginBottom: '1.5rem' }}>
               <Target size={32} color="var(--accent-purple)" />
             </div>
@@ -62,7 +62,7 @@ function Home() {
           </div>
 
           {/* Side Feature 2 - Medium */}
-          <div className="glass-panel glass-panel-hover" style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 768px)': { gridColumn: 'span 5 / span 5' }, padding: '3rem', display: 'flex', flexDirection: 'column' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-5" style={{ padding: '3rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ background: 'rgba(236, 72, 153, 0.1)', border: '1px solid rgba(236, 72, 153, 0.2)', display: 'inline-flex', padding: '1rem', borderRadius: '1rem', alignSelf: 'flex-start', marginBottom: '1.5rem' }}>
               <TrendingUp size={32} color="var(--accent-pink)" />
             </div>
@@ -73,7 +73,7 @@ function Home() {
           </div>
 
           {/* Wide Feature - Medium */}
-          <div className="glass-panel glass-panel-hover" style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 768px)': { gridColumn: 'span 7 / span 7' }, padding: '3rem', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3rem' }}>
+          <div className="glass-panel glass-panel-hover col-12 md-col-7" style={{ padding: '3rem', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '3rem' }}>
             <div>
               <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>AI-Powered Builder</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '1.5rem' }}>
@@ -83,7 +83,7 @@ function Home() {
                 Launch Builder <ChevronRight size={18} />
               </Link>
             </div>
-            <div style={{ display: 'none', '@media(min-width: 640px)': { display: 'flex' }, justifyContent: 'center', alignItems: 'center', width: '120px', height: '120px', background: 'var(--gradient-glass)', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="hidden-mobile" style={{ justifyContent: 'center', alignItems: 'center', width: '120px', height: '120px', background: 'var(--gradient-glass)', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)' }}>
               <Zap size={48} color="white" />
             </div>
           </div>

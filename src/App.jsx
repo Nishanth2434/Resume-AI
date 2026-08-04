@@ -56,30 +56,31 @@ function Navbar() {
         
         <nav style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
-            <HomeIcon size={16} /> Home
+            <HomeIcon size={16} /> <span className="nav-desktop-text">Home</span>
           </Link>
           <Link to="/analyze" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/analyze') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
-            <BarChart size={16} /> Analyzer
+            <BarChart size={16} /> <span className="nav-desktop-text">Analyzer</span>
           </Link>
           <Link to="/build" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: isActive('/build') ? 'var(--accent-primary)' : 'var(--text-secondary)', transition: 'color 0.2s', textDecoration: 'none' }} className="nav-link">
-            <FileText size={16} /> Builder
+            <FileText size={16} /> <span className="nav-desktop-text">Builder</span>
           </Link>
           
           <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }}></div>
           
           {session ? (
             <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', transition: 'color 0.2s' }} className="nav-link">
-              <LogOut size={16} /> Sign Out
+              <LogOut size={16} /> <span className="nav-desktop-text">Sign Out</span>
             </button>
           ) : (
             <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }} className="nav-link">
-              <LogIn size={16} /> Sign In
+              <LogIn size={16} /> <span className="nav-desktop-text">Sign In</span>
             </Link>
           )}
 
           {!session && (
             <Link to="/analyze" className="btn btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.9rem', borderRadius: 'var(--radius-pill)', textDecoration: 'none' }}>
-              Get Started
+              <span className="nav-desktop-text">Get Started</span>
+              <span className="hidden-mobile" style={{ display: 'none' }}>Go</span>
             </Link>
           )}
         </nav>

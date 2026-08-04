@@ -311,3 +311,31 @@ input::placeholder, textarea::placeholder {
 
 /* Link */
 a { text-decoration: none; color: inherit; }
+
+/* Responsive Utilities */
+.col-12 { grid-column: span 12 / span 12; }
+@media (min-width: 768px) {
+  .md-col-4 { grid-column: span 4 / span 4; }
+  .md-col-5 { grid-column: span 5 / span 5; }
+  .md-col-6 { grid-column: span 6 / span 6; }
+  .md-col-7 { grid-column: span 7 / span 7; }
+  .md-col-8 { grid-column: span 8 / span 8; }
+}
+@media (min-width: 1024px) {
+  .lg-col-3 { grid-column: span 3 / span 3; }
+  .lg-col-4 { grid-column: span 4 / span 4; }
+  .lg-col-8 { grid-column: span 8 / span 8; }
+  .lg-col-9 { grid-column: span 9 / span 9; }
+}
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .nav-desktop-text { display: none !important; }
+  .mobile-wrap { flex-wrap: wrap; }
+  .glass-panel { padding: 1.5rem !important; }
+  .bento-grid { display: flex; flex-direction: column; gap: 1rem; }
+}
+
+
+@media (max-width: 640px) { .hidden-mobile { display: none !important; } }
+@media (min-width: 641px) { .hidden-mobile { display: flex; } }
+
