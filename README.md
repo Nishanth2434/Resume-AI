@@ -72,7 +72,8 @@
 | Feature | Description |
 | :--- | :--- |
 | 🧠 **AI Resume Analysis** | Securely parse PDF/DOCX resumes and get real-time ATS scoring, actionable feedback, and keyword optimization via Google Gemini 1.5 Flash. |
-| 🛠️ **Premium Resume Builder** | A two-column live-syncing builder with multiple high-contrast templates (Modern, Classic, Creative). |
+| 🛠️ **Premium Resume Templates** | Choose between 3 meticulously crafted designs: Modern (2-column), Classic Executive (Harvard-style), and Creative (Dark Mode). Features dynamic scaling to strictly enforce a single A4 page limit regardless of content density. |
+| 🎓 **Fresher vs Experienced** | Specialized data flows adapt the builder dynamically. Switch between "Fresher" (Prioritizes Projects, Internships, Coursework) and "Experienced" (Prioritizes Professional Jobs). |
 | 🪄 **Magic Rewrite** | Click a single button on any bullet point to have Gemini automatically rewrite it into a highly professional, ATS-friendly format. |
 | ✉️ **Cover Letter Generator** | Paste a job description and automatically generate a personalized cover letter using your securely saved resume data. |
 | 🔐 **Supabase Authentication** | Enterprise-grade JWT-based login and signup keeping user resume data fully isolated and private via Row Level Security. |
