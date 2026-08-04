@@ -141,7 +141,7 @@ function ResultsDashboard({ data, onReset }) {
       
       <div className="bento-grid">
         {/* Score Card - Large */}
-        <div className="glass-panel glass-panel-hover stagger-1" style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 1024px)': { gridColumn: 'span 4 / span 4' }, padding: '4rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="glass-panel glass-panel-hover animate-fade-in-up stagger-1" style={{ gridColumn: 'span 12 / span 12', padding: '4rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <h3 style={{ fontSize: '1.5rem', marginBottom: '3rem', color: 'var(--text-secondary)' }}>ATS Match Score</h3>
           <div style={{ 
             width: '240px', height: '240px', 
@@ -165,7 +165,7 @@ function ResultsDashboard({ data, onReset }) {
         </div>
 
         {/* Small metric cards */}
-        <div style={{ gridColumn: 'span 12 / span 12', '@media(min-width: 1024px)': { gridColumn: 'span 8 / span 8' }, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div style={{ gridColumn: 'span 12 / span 12', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           <DashboardCard 
             icon={<BarChart2 color="var(--accent-cyan)" size={28} />}
             title="Keyword Synergy"
@@ -201,7 +201,7 @@ function ResultsDashboard({ data, onReset }) {
         </div>
 
         {/* Wide Recommendations Panel */}
-        <div className="glass-panel stagger-4" style={{ gridColumn: 'span 12 / span 12', padding: '3rem', position: 'relative', overflow: 'hidden' }}>
+        <div className="glass-panel animate-fade-in-up stagger-4" style={{ gridColumn: 'span 12 / span 12', padding: '3rem', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: 'var(--gradient-mesh)' }}></div>
           <h3 style={{ fontSize: '1.8rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <Zap color="var(--accent-purple)" size={28} /> Actionable Directives
@@ -229,7 +229,7 @@ function DashboardCard({ icon, title, value, desc, status, delay }) {
   };
   
   return (
-    <div className={`glass-panel glass-panel-hover ${delay}`} style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className={`glass-panel glass-panel-hover animate-fade-in-up ${delay}`} style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ background: 'var(--gradient-glass)', padding: '1rem', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
           {icon}

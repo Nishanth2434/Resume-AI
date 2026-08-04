@@ -28,7 +28,7 @@ def analyze_resume(resume_text: str) -> dict:
         return get_mock_analysis()
 
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-pro",
+        model_name="gemini-1.5-flash",
         generation_config=generation_config,
     )
 
