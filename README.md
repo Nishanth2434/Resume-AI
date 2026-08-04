@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.icons8.com/color/512/resume.png" alt="Smart Resume AI logo" width="120" />
+<img src="assets/logo.jpg" alt="Smart Resume AI logo" width="120" style="border-radius: 50%" />
 
 # 🚀 Smart AI Resume Analyzer & Builder
 

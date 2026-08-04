@@ -49,7 +49,7 @@ function Navbar() {
       }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
           <div style={{ background: 'var(--gradient-mesh)', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)' }}>
-            <img src="https://img.icons8.com/color/512/resume.png" alt="Logo" style={{ width: '28px', height: '28px' }} />
+            <img src="/logo.jpg" alt="Logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
           </div>
           <span style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>SmartResume<span className="text-gradient">AI</span></span>
         </Link>
@@ -96,7 +96,7 @@ function Footer() {
         {/* Brand Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <img src="https://img.icons8.com/color/512/resume.png" alt="Logo" style={{ width: '32px', height: '32px' }} />
+            <img src="/logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
             <span style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>SmartResume<span className="text-gradient">AI</span></span>
           </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
