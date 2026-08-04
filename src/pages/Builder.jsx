@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { User, Briefcase, GraduationCap, Code, Download, Eye, X } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Code, Download, Eye, X, Trash2 } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import html2pdf from 'html2pdf.js';
 import { getCroppedImg } from '../utils/cropImage';
@@ -15,6 +15,14 @@ function Builder() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
+
+  // Resume Data State
+  const [resumeData, setResumeData] = useState({
+    personal: { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '' },
+    experience: [ { role: '', company: '', startDate: '', endDate: '', bullets: '' } ],
+    education: [ { degree: '', institution: '', year: '', gpa: '' } ],
+    skills: { primary: '', secondary: '' }
+  });
 
   const previewRef = useRef(null);
 
@@ -52,11 +60,6 @@ function Builder() {
   };
 
   const exportPDF = () => {
-    // If preview is closed, we temporarily open it off-screen? 
-    // It's better if we tell the user to open the preview to export it, or we export it directly.
-    // Let's just generate it from a hidden container or temporarily show it.
-    // For reliability, we will render it hidden always.
-    
     const element = previewRef.current;
     
     const opt = {
@@ -68,6 +71,50 @@ function Builder() {
     };
 
     html2pdf().set(opt).from(element).save();
+  };
+
+  const handlePersonalChange = (field, value) => {
+    setResumeData({ ...resumeData, personal: { ...resumeData.personal, [field]: value } });
+  };
+
+  const handleExperienceChange = (index, field, value) => {
+    const newExp = [...resumeData.experience];
+    newExp[index][field] = value;
+    setResumeData({ ...resumeData, experience: newExp });
+  };
+
+  const appendExperience = () => {
+    setResumeData({
+      ...resumeData,
+      experience: [...resumeData.experience, { role: '', company: '', startDate: '', endDate: '', bullets: '' }]
+    });
+  };
+
+  const removeExperience = (index) => {
+    const newExp = resumeData.experience.filter((_, i) => i !== index);
+    setResumeData({ ...resumeData, experience: newExp });
+  };
+
+  const handleEducationChange = (index, field, value) => {
+    const newEdu = [...resumeData.education];
+    newEdu[index][field] = value;
+    setResumeData({ ...resumeData, education: newEdu });
+  };
+
+  const appendEducation = () => {
+    setResumeData({
+      ...resumeData,
+      education: [...resumeData.education, { degree: '', institution: '', year: '', gpa: '' }]
+    });
+  };
+
+  const removeEducation = (index) => {
+    const newEdu = resumeData.education.filter((_, i) => i !== index);
+    setResumeData({ ...resumeData, education: newEdu });
+  };
+
+  const handleSkillsChange = (field, value) => {
+    setResumeData({ ...resumeData, skills: { ...resumeData.skills, [field]: value } });
   };
 
   return (
@@ -152,14 +199,14 @@ function Builder() {
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-                <FormGroup label="Legal Name" type="text" placeholder="Richard Sanchez" />
-                <FormGroup label="Target Designation" type="text" placeholder="Marketing Manager" />
-                <FormGroup label="Primary Email" type="email" placeholder="hello@reallygreatsite.com" />
-                <FormGroup label="Contact Number" type="tel" placeholder="+1 (555) 123-4567" />
-                <FormGroup label="Professional Network (LinkedIn)" type="url" placeholder="linkedin.com/in/richardsanchez" />
-                <FormGroup label="Geographic Location" type="text" placeholder="123 Anywhere St., Any City" />
+                <FormGroup label="Legal Name" type="text" placeholder="Richard Sanchez" value={resumeData.personal.name} onChange={(e) => handlePersonalChange('name', e.target.value)} />
+                <FormGroup label="Target Designation" type="text" placeholder="Marketing Manager" value={resumeData.personal.title} onChange={(e) => handlePersonalChange('title', e.target.value)} />
+                <FormGroup label="Primary Email" type="email" placeholder="hello@reallygreatsite.com" value={resumeData.personal.email} onChange={(e) => handlePersonalChange('email', e.target.value)} />
+                <FormGroup label="Contact Number" type="tel" placeholder="+1 (555) 123-4567" value={resumeData.personal.phone} onChange={(e) => handlePersonalChange('phone', e.target.value)} />
+                <FormGroup label="Professional Network (LinkedIn)" type="url" placeholder="linkedin.com/in/richardsanchez" value={resumeData.personal.linkedin} onChange={(e) => handlePersonalChange('linkedin', e.target.value)} />
+                <FormGroup label="Geographic Location" type="text" placeholder="123 Anywhere St., Any City" value={resumeData.personal.location} onChange={(e) => handlePersonalChange('location', e.target.value)} />
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <FormGroup label="Executive Summary" type="textarea" placeholder="Craft a compelling narrative of your professional journey..." rows={5} />
+                  <FormGroup label="Executive Summary" type="textarea" placeholder="Craft a compelling narrative of your professional journey..." rows={5} value={resumeData.personal.summary} onChange={(e) => handlePersonalChange('summary', e.target.value)} />
                 </div>
               </div>
             </div>
@@ -169,16 +216,26 @@ function Builder() {
             <div className="animate-scale-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                 <h2 style={{ margin: 0, fontSize: '2rem' }}>Professional Trajectory</h2>
-                <button className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }}>+ Append Role</button>
+                <button className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }} onClick={appendExperience}>+ Append Role</button>
               </div>
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-                  <FormGroup label="Role Designation" type="text" placeholder="Marketing Manager & Specialist" />
-                  <FormGroup label="Organization" type="text" placeholder="Borcelle Studio" />
-                  <FormGroup label="Commencement" type="month" />
-                  <FormGroup label="Conclusion" type="text" placeholder="Present" />
-                </div>
-                <FormGroup label="Impact & Deliverables (Bullet points)" type="textarea" placeholder="- Developed and executed comprehensive marketing strategies..." rows={6} />
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {resumeData.experience.map((exp, index) => (
+                  <div key={index} style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                    {resumeData.experience.length > 1 && (
+                      <button onClick={() => removeExperience(index)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                        <Trash2 size={20} />
+                      </button>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+                      <FormGroup label="Role Designation" type="text" placeholder="Marketing Manager" value={exp.role} onChange={(e) => handleExperienceChange(index, 'role', e.target.value)} />
+                      <FormGroup label="Organization" type="text" placeholder="Borcelle Studio" value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} />
+                      <FormGroup label="Commencement" type="month" value={exp.startDate} onChange={(e) => handleExperienceChange(index, 'startDate', e.target.value)} />
+                      <FormGroup label="Conclusion" type="text" placeholder="Present" value={exp.endDate} onChange={(e) => handleExperienceChange(index, 'endDate', e.target.value)} />
+                    </div>
+                    <FormGroup label="Impact & Deliverables (Bullet points)" type="textarea" placeholder="- Developed and executed comprehensive marketing strategies..." rows={6} value={exp.bullets} onChange={(e) => handleExperienceChange(index, 'bullets', e.target.value)} />
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -187,15 +244,25 @@ function Builder() {
             <div className="animate-scale-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                 <h2 style={{ margin: 0, fontSize: '2rem' }}>Academic Credentials</h2>
-                <button className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }}>+ Append Credential</button>
+                <button className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }} onClick={appendEducation}>+ Append Credential</button>
               </div>
-              <div style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
-                  <FormGroup label="Degree Classification" type="text" placeholder="Master of Business Management" />
-                  <FormGroup label="Academic Institution" type="text" placeholder="Wardiere University" />
-                  <FormGroup label="Conferral Year" type="number" placeholder="2031" />
-                  <FormGroup label="Academic Standing (GPA)" type="text" placeholder="3.8 / 4.0" />
-                </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {resumeData.education.map((edu, index) => (
+                  <div key={index} style={{ background: 'rgba(255,255,255,0.02)', padding: '3rem', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                    {resumeData.education.length > 1 && (
+                      <button onClick={() => removeEducation(index)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                        <Trash2 size={20} />
+                      </button>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+                      <FormGroup label="Degree Classification" type="text" placeholder="Master of Business Management" value={edu.degree} onChange={(e) => handleEducationChange(index, 'degree', e.target.value)} />
+                      <FormGroup label="Academic Institution" type="text" placeholder="Wardiere University" value={edu.institution} onChange={(e) => handleEducationChange(index, 'institution', e.target.value)} />
+                      <FormGroup label="Conferral Year" type="number" placeholder="2031" value={edu.year} onChange={(e) => handleEducationChange(index, 'year', e.target.value)} />
+                      <FormGroup label="Academic Standing (GPA)" type="text" placeholder="3.8 / 4.0" value={edu.gpa} onChange={(e) => handleEducationChange(index, 'gpa', e.target.value)} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -207,195 +274,18 @@ function Builder() {
                 Delineate your skills using comma separation.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                <FormGroup label="Primary Competencies" type="textarea" placeholder="Project Management, Public Relations, Digital Marketing..." rows={4} />
-                <FormGroup label="Secondary Competencies" type="textarea" placeholder="Teamwork, Leadership, Critical Thinking..." rows={4} />
+                <FormGroup label="Primary Competencies" type="textarea" placeholder="Project Management, Public Relations, Digital Marketing..." rows={4} value={resumeData.skills.primary} onChange={(e) => handleSkillsChange('primary', e.target.value)} />
+                <FormGroup label="Secondary Competencies" type="textarea" placeholder="Teamwork, Leadership, Critical Thinking..." rows={4} value={resumeData.skills.secondary} onChange={(e) => handleSkillsChange('secondary', e.target.value)} />
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* 
-        HIDDEN RENDER FOR PDF EXPORT 
-        This is rendered offscreen so html2pdf can capture it even when preview is closed.
-      */}
+      {/* HIDDEN RENDER FOR PDF EXPORT */}
       <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden' }}>
-        <div ref={previewRef} style={{ 
-          width: '794px', /* A4 width */
-          height: '1123px', /* A4 height */
-          background: 'white', 
-          color: '#333',
-          display: 'flex',
-          fontFamily: '"Inter", sans-serif',
-          overflow: 'hidden',
-          boxSizing: 'border-box'
-        }}>
-          {/* Header Spacer (Absolute positioned to span full width at top) */}
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '180px',
-            backgroundColor: '#353945', zIndex: 1
-          }}></div>
-
-          {/* Left Sidebar */}
-          <div style={{
-            width: '32%',
-            backgroundColor: '#e5e7eb',
-            padding: '180px 2rem 2rem 2rem',
-            position: 'relative',
-            zIndex: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '2rem'
-          }}>
-            {/* Profile Photo */}
-            <div style={{
-              width: '180px', height: '180px', borderRadius: '50%',
-              backgroundColor: '#fff',
-              position: 'absolute', top: '40px', left: '50%', transform: 'translateX(-50%)',
-              border: '6px solid #e5e7eb', zIndex: 10,
-              overflow: 'hidden',
-              display: 'flex', justifyContent: 'center', alignItems: 'center'
-            }}>
-              <img src={photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-
-            {/* Contact Info */}
-            <div style={{ marginTop: '40px' }}>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem' }}>CONTACT</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: '#334155' }}>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📞</span> +123-456-7890</div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#d8b4e2'}}>✉️</span> hello@reallygreatsite.com</div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📍</span> 123 Anywhere St., Any City</div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#3b82f6'}}>🌐</span> www.reallygreatsite.com</div>
-              </div>
-            </div>
-
-            
-            {/* Skills */}
-            <div>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
-              <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
-                <li>Project Management</li>
-                <li>Public Relations</li>
-                <li>Teamwork</li>
-                <li>Time Management</li>
-                <li>Leadership</li>
-                <li>Effective Communication</li>
-              </ul>
-            </div>
-
-            {/* Languages */}
-            <div>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>LANGUAGES</h3>
-              <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
-                <li>English (Fluent)</li>
-                <li>French (Fluent)</li>
-                <li>German (Basic)</li>
-                <li>Spanish (Intermediate)</li>
-              </ul>
-            </div>
-            
-            {/* Reference */}
-            <div>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>REFERENCE</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', color: '#334155' }}>
-                <span style={{ fontWeight: 600 }}>Estelle Darcy</span>
-                <span>Wardiere Inc. / CTO</span>
-                <span style={{ marginTop: '0.5rem' }}>Phone: 123-456-7890</span>
-                <span>Email: hello@reallygreatsite.com</span>
-              </div>
-            </div>
-
-
-          </div>
-
-          {/* Right Main Content */}
-          <div style={{
-            width: '68%',
-            backgroundColor: '#ffffff',
-            position: 'relative',
-            zIndex: 2,
-            padding: '50px 3rem 3rem 2rem'
-          }}>
-            {/* Name and Title (Over the white header) */}
-            <div style={{ height: '110px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#ffffff', textShadow: '1px 1px 4px rgba(0,0,0,0.4)' }}>RICHARD SANCHEZ</h1>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#cbd5e1', fontWeight: 600 }}>Marketing Manager</p>
-            </div>
-
-            {/* Main Content Area */}
-            <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              
-              {/* Profile */}
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-                  <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#b9514e', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>👤</div>
-                  <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '0.5rem', color: '#101c56', fontWeight: 700 }}>PROFILE</h3>
-                  <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: '#475569' }}>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
-                  </p>
-                </div>
-              </div>
-
-              {/* Work Experience */}
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-                  <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#c97750', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>💼</div>
-                  <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>WORK EXPERIENCE</h3>
-                  
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Borcelle Studio</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2030 - PRESENT</span>
-                    </div>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                      <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
-                      <li>Lead, mentor, and manage a high-performing marketing team.</li>
-                      <li>Monitor brand consistency across marketing channels.</li>
-                    </ul>
-                  </div>
-
-                  <div style={{ marginBottom: '0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Fauget Studio</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2025 - 2029</span>
-                    </div>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                      <li>Create and manage the marketing budget, optimizing ROI.</li>
-                      <li>Oversee market research to identify emerging trends.</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Education */}
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-                  <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>🎓</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>EDUCATION</h3>
-                  
-                  <div style={{ marginBottom: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Master of Business Management</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2029 - 2031</span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>School of business | Wardiere University<br/>GPA: 3.8 / 4.0</p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
+        <div ref={previewRef}>
+          <ResumePreview data={resumeData} photoURL={photoURL} />
         </div>
       </div>
 
@@ -416,190 +306,8 @@ function Builder() {
               </div>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', background: '#d1d5db', display: 'flex', justifyContent: 'center', padding: '2rem 0' }}>
-              
-              {/* Clone the Resume Paper for visible Preview */}
-              <div style={{ 
-                width: '794px', /* A4 width */
-                minHeight: '1123px', /* A4 height */
-                background: 'white', 
-                color: '#333',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                position: 'relative',
-                display: 'flex',
-                fontFamily: '"Inter", sans-serif',
-                overflow: 'hidden',
-                transform: 'scale(0.85)',
-                transformOrigin: 'top center',
-                marginBottom: '-15%'
-              }}>
-                
-                {/* Header Spacer (Absolute positioned to span full width at top) */}
-                <div style={{
-                  position: 'absolute', top: 0, left: 0, right: 0, height: '180px',
-                  backgroundColor: '#353945', zIndex: 1
-                }}></div>
-
-                {/* Left Sidebar */}
-                <div style={{
-                  width: '32%',
-                  backgroundColor: '#e5e7eb',
-                  padding: '180px 2rem 2rem 2rem',
-                  position: 'relative',
-                  zIndex: 2,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2rem'
-                }}>
-                  {/* Profile Photo */}
-                  <div style={{
-                    width: '180px', height: '180px', borderRadius: '50%',
-                    backgroundColor: '#fff',
-                    position: 'absolute', top: '40px', left: '50%', transform: 'translateX(-50%)',
-                    border: '6px solid #e5e7eb', zIndex: 10,
-                    overflow: 'hidden',
-                    display: 'flex', justifyContent: 'center', alignItems: 'center'
-                  }}>
-                    <img src={photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-
-                  {/* Contact Info */}
-                  <div style={{ marginTop: '40px' }}>
-                    <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem' }}>CONTACT</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: '#334155' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📞</span> +123-456-7890</div>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#d8b4e2'}}>✉️</span> hello@reallygreatsite.com</div>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📍</span> 123 Anywhere St., Any City</div>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#3b82f6'}}>🌐</span> www.reallygreatsite.com</div>
-                    </div>
-                  </div>
-
-                  
-            {/* Skills */}
-            <div>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
-              <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
-                <li>Project Management</li>
-                <li>Public Relations</li>
-                <li>Teamwork</li>
-                <li>Time Management</li>
-                <li>Leadership</li>
-                <li>Effective Communication</li>
-              </ul>
-            </div>
-
-            {/* Languages */}
-            <div>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>LANGUAGES</h3>
-              <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
-                <li>English (Fluent)</li>
-                <li>French (Fluent)</li>
-                <li>German (Basic)</li>
-                <li>Spanish (Intermediate)</li>
-              </ul>
-            </div>
-            
-            {/* Reference */}
-            <div>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>REFERENCE</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', color: '#334155' }}>
-                <span style={{ fontWeight: 600 }}>Estelle Darcy</span>
-                <span>Wardiere Inc. / CTO</span>
-                <span style={{ marginTop: '0.5rem' }}>Phone: 123-456-7890</span>
-                <span>Email: hello@reallygreatsite.com</span>
-              </div>
-            </div>
-
-
-                </div>
-
-                {/* Right Main Content */}
-                <div style={{
-                  width: '68%',
-                  backgroundColor: '#ffffff',
-                  position: 'relative',
-                  zIndex: 2,
-                  padding: '50px 3rem 3rem 2rem'
-                }}>
-                  {/* Name and Title (Over the white header) */}
-                  <div style={{ height: '110px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#ffffff', textShadow: '1px 1px 4px rgba(0,0,0,0.4)' }}>RICHARD SANCHEZ</h1>
-                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#cbd5e1', fontWeight: 600 }}>Marketing Manager</p>
-                  </div>
-
-                  {/* Main Content Area */}
-                  <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    
-                    {/* Profile */}
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-                        <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#b9514e', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>👤</div>
-                        <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '0.5rem', color: '#101c56', fontWeight: 700 }}>PROFILE</h3>
-                        <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: '#475569' }}>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Work Experience */}
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-                        <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#c97750', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>💼</div>
-                        <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>WORK EXPERIENCE</h3>
-                        
-                        <div style={{ marginBottom: '1.5rem' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                            <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Borcelle Studio</h4>
-                            <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2030 - PRESENT</span>
-                          </div>
-                          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
-                          <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                            <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
-                            <li>Lead, mentor, and manage a high-performing marketing team.</li>
-                            <li>Monitor brand consistency across marketing channels.</li>
-                          </ul>
-                        </div>
-
-                        <div style={{ marginBottom: '0' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                            <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Fauget Studio</h4>
-                            <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2025 - 2029</span>
-                          </div>
-                          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
-                          <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                            <li>Create and manage the marketing budget, optimizing ROI.</li>
-                            <li>Oversee market research to identify emerging trends.</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Education */}
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
-                        <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>🎓</div>
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>EDUCATION</h3>
-                        
-                        <div style={{ marginBottom: '1rem' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
-                            <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Master of Business Management</h4>
-                            <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2029 - 2031</span>
-                          </div>
-                          <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>School of business | Wardiere University<br/>GPA: 3.8 / 4.0</p>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
+              <div style={{ transform: 'scale(0.85)', transformOrigin: 'top center', marginBottom: '-15%' }}>
+                <ResumePreview data={resumeData} photoURL={photoURL} />
               </div>
             </div>
           </div>
@@ -609,18 +317,186 @@ function Builder() {
   );
 }
 
-function FormGroup({ label, type, placeholder, rows }) {
+// Extracted Component for Resume Rendering
+function ResumePreview({ data, photoURL }) {
+  const p = data.personal;
+  
+  // Format primary skills (split by comma, fallback to placeholders if empty)
+  const primarySkills = data.skills.primary ? data.skills.primary.split(',').map(s => s.trim()) : ['Project Management', 'Public Relations', 'Teamwork', 'Time Management', 'Leadership', 'Effective Communication'];
+  
+  return (
+    <div style={{ 
+      width: '794px', /* A4 width */
+      minHeight: '1123px', /* A4 height */
+      background: 'white', 
+      color: '#333',
+      display: 'flex',
+      fontFamily: '"Inter", sans-serif',
+      overflow: 'hidden',
+      boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+      position: 'relative',
+      boxSizing: 'border-box'
+    }}>
+      {/* Header Spacer */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: '180px',
+        backgroundColor: '#353945', zIndex: 1
+      }}></div>
+
+      {/* Left Sidebar */}
+      <div style={{
+        width: '32%', backgroundColor: '#e5e7eb', padding: '180px 2rem 2rem 2rem',
+        position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: '2rem'
+      }}>
+        <div style={{
+          width: '180px', height: '180px', borderRadius: '50%', backgroundColor: '#fff',
+          position: 'absolute', top: '40px', left: '50%', transform: 'translateX(-50%)',
+          border: '6px solid #e5e7eb', zIndex: 10, overflow: 'hidden',
+          display: 'flex', justifyContent: 'center', alignItems: 'center'
+        }}>
+          <img src={photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+
+        <div style={{ marginTop: '40px' }}>
+          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem' }}>CONTACT</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: '#334155' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📞</span> {p.phone || '+123-456-7890'}</div>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: '#d8b4e2'}}>✉️</span> {p.email || 'hello@reallygreatsite.com'}</div>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><span style={{color: '#e91e63'}}>📍</span> {p.location || '123 Anywhere St., Any City'}</div>
+            {p.linkedin && <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', wordBreak: 'break-all' }}><span style={{color: '#3b82f6'}}>🌐</span> {p.linkedin}</div>}
+          </div>
+        </div>
+
+        <div>
+          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
+          <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
+            {primarySkills.map((skill, idx) => (
+              <li key={idx}>{skill}</li>
+            ))}
+          </ul>
+        </div>
+        
+        <div>
+          <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>LANGUAGES</h3>
+          <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
+            <li>English (Fluent)</li>
+            <li>Spanish (Intermediate)</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Right Main Content */}
+      <div style={{
+        width: '68%', backgroundColor: '#ffffff', position: 'relative', zIndex: 2, padding: '50px 3rem 3rem 2rem'
+      }}>
+        <div style={{ height: '110px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#ffffff', textShadow: '1px 1px 4px rgba(0,0,0,0.4)', textTransform: 'uppercase' }}>
+            {p.name || 'RICHARD SANCHEZ'}
+          </h1>
+          <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#cbd5e1', fontWeight: 600 }}>
+            {p.title || 'Marketing Manager'}
+          </p>
+        </div>
+
+        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
+              <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#b9514e', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>👤</div>
+              <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '0.5rem', color: '#101c56', fontWeight: 700 }}>PROFILE</h3>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: '#475569', whiteSpace: 'pre-line' }}>
+                {p.summary || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.'}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
+              <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: '#c97750', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>💼</div>
+              <div style={{ flex: 1, width: '1px', backgroundColor: '#e2e8f0', margin: '5px 0' }}></div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>WORK EXPERIENCE</h3>
+              
+              {data.experience.length === 1 && !data.experience[0].role ? (
+                <>
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Borcelle Studio</h4>
+                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2030 - PRESENT</span>
+                    </div>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>Marketing Manager & Specialist</p>
+                    <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
+                      <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
+                      <li>Lead, mentor, and manage a high-performing marketing team.</li>
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                data.experience.map((exp, idx) => (
+                  <div key={idx} style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>{exp.company || 'Company'}</h4>
+                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>{exp.startDate} - {exp.endDate}</span>
+                    </div>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>{exp.role}</p>
+                    {exp.bullets && (
+                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
+                        {exp.bullets.split('\n').filter(b => b.trim()).map((bullet, bIdx) => (
+                          <li key={bIdx}>{bullet.replace(/^-/, '').trim()}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '25px' }}>
+              <div style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: '#212975', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '12px', border: '2px solid rgba(0,0,0,0.1)' }}>🎓</div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <h3 style={{ fontSize: '1.1rem', letterSpacing: '2px', marginBottom: '1rem', color: '#101c56', fontWeight: 700 }}>EDUCATION</h3>
+              
+              {data.education.length === 1 && !data.education[0].degree ? (
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                    <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>Master of Business Management</h4>
+                    <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>2031</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>Wardiere University<br/>GPA: 3.8 / 4.0</p>
+                </div>
+              ) : (
+                data.education.map((edu, idx) => (
+                  <div key={idx} style={{ marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a' }}>{edu.degree || 'Degree'}</h4>
+                      <span style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>{edu.year}</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569' }}>{edu.institution}{edu.gpa ? <><br/>GPA: {edu.gpa}</> : null}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FormGroup({ label, type, placeholder, rows, value, onChange }) {
   const inputStyle = {
-    width: '100%',
-    padding: '0.8rem 1rem',
-    background: 'rgba(0,0,0,0.2)',
-    border: '1px solid var(--border-color)',
-    borderRadius: '0.5rem',
-    color: 'var(--text-primary)',
-    fontFamily: 'var(--font-body)',
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'border-color 0.2s',
+    width: '100%', padding: '0.8rem 1rem', background: 'rgba(0,0,0,0.2)',
+    border: '1px solid var(--border-color)', borderRadius: '0.5rem',
+    color: 'var(--text-primary)', fontFamily: 'var(--font-body)', fontSize: '0.95rem',
+    outline: 'none', transition: 'border-color 0.2s',
   };
 
   return (
@@ -628,17 +504,16 @@ function FormGroup({ label, type, placeholder, rows }) {
       <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</label>
       {type === 'textarea' ? (
         <textarea 
-          placeholder={placeholder} 
-          rows={rows || 3} 
+          placeholder={placeholder} rows={rows || 3} 
           style={{ ...inputStyle, resize: 'vertical' }}
+          value={value} onChange={onChange}
           onFocus={(e) => e.target.style.borderColor = 'var(--accent-primary)'}
           onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
         />
       ) : (
         <input 
-          type={type} 
-          placeholder={placeholder} 
-          style={inputStyle} 
+          type={type} placeholder={placeholder} style={inputStyle} 
+          value={value} onChange={onChange}
           onFocus={(e) => e.target.style.borderColor = 'var(--accent-primary)'}
           onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
         />
