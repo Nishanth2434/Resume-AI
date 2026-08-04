@@ -105,10 +105,10 @@ flowchart TD
     end
 
     subgraph Backend [FastAPI Server]
-        API_Analyze[/api/analyze]
-        API_Rewrite[/api/rewrite]
-        API_Cover[/api/cover-letter]
-        Parser[PyMuPDF / Docx Parser]
+        API_Analyze["/api/analyze"]
+        API_Rewrite["/api/rewrite"]
+        API_Cover["/api/cover-letter"]
+        Parser["PyMuPDF / Docx Parser"]
     end
 
     subgraph External [Cloud Services]
