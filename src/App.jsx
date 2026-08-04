@@ -88,7 +88,7 @@ function Navbar() {
             )}
 
             {!session && (
-              <Link to="/analyze" className="btn btn-primary nav-desktop-text" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: 'var(--radius-pill)', textDecoration: 'none', marginLeft: '0.5rem' }}>
+              <Link to="/analyze" className="btn btn-gradient nav-desktop-text" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: 'var(--radius-pill)', textDecoration: 'none', marginLeft: '0.5rem' }}>
                 Get Started
               </Link>
             )}
