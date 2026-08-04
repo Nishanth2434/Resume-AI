@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UploadCloud, File, CheckCircle, AlertCircle, BarChart2, PieChart, Activity, Zap } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 function Analyzer() {
   const [file, setFile] = useState(null);
@@ -28,12 +29,23 @@ function Analyzer() {
     if (!file) return;
     setAnalyzing(true);
     
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await fetch('http://localhost:8000/api/analyze', {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Please log in before analyzing your resume.');
+        setAnalyzing(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/analyze`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: formData,
       });
 
@@ -146,7 +158,7 @@ function ResultsDashboard({ data, onReset }) {
           <div style={{ 
             width: '240px', height: '240px', 
             borderRadius: '50%', 
-            background: 'conic-gradient(#10b981 82%, rgba(255,255,255,0.05) 0)',
+            background: `conic-gradient(#10b981 ${data.ats_score}%, rgba(255,255,255,0.05) 0)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 0 50px rgba(16, 185, 129, 0.15)',
             position: 'relative'
