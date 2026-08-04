@@ -232,15 +232,15 @@ function Builder() {
         }}>
           {/* Header Spacer (Absolute positioned to span full width at top) */}
           <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '160px',
-            backgroundColor: 'white', zIndex: 1
+            position: 'absolute', top: 0, left: 0, right: 0, height: '180px',
+            backgroundColor: '#353945', zIndex: 1
           }}></div>
 
           {/* Left Sidebar */}
           <div style={{
             width: '32%',
-            backgroundColor: '#f4f5f7',
-            padding: '160px 2rem 2rem 2rem',
+            backgroundColor: '#e5e7eb',
+            padding: '180px 2rem 2rem 2rem',
             position: 'relative',
             zIndex: 2,
             display: 'flex',
@@ -252,7 +252,7 @@ function Builder() {
               width: '180px', height: '180px', borderRadius: '50%',
               backgroundColor: '#fff',
               position: 'absolute', top: '40px', left: '50%', transform: 'translateX(-50%)',
-              border: '5px solid #e5e7eb',
+              border: '6px solid #e5e7eb', zIndex: 10,
               overflow: 'hidden',
               display: 'flex', justifyContent: 'center', alignItems: 'center'
             }}>
@@ -270,9 +270,10 @@ function Builder() {
               </div>
             </div>
 
+            
             {/* Skills */}
             <div>
-              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem' }}>SKILLS</h3>
+              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
               <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
                 <li>Project Management</li>
                 <li>Public Relations</li>
@@ -282,6 +283,29 @@ function Builder() {
                 <li>Effective Communication</li>
               </ul>
             </div>
+
+            {/* Languages */}
+            <div>
+              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>LANGUAGES</h3>
+              <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
+                <li>English (Fluent)</li>
+                <li>French (Fluent)</li>
+                <li>German (Basic)</li>
+                <li>Spanish (Intermediate)</li>
+              </ul>
+            </div>
+            
+            {/* Reference */}
+            <div>
+              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>REFERENCE</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', color: '#334155' }}>
+                <span style={{ fontWeight: 600 }}>Estelle Darcy</span>
+                <span>Wardiere Inc. / CTO</span>
+                <span style={{ marginTop: '0.5rem' }}>Phone: 123-456-7890</span>
+                <span>Email: hello@reallygreatsite.com</span>
+              </div>
+            </div>
+
 
           </div>
 
@@ -295,8 +319,8 @@ function Builder() {
           }}>
             {/* Name and Title (Over the white header) */}
             <div style={{ height: '110px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#f3f4f6', textShadow: '1px 1px 2px rgba(0,0,0,0.2), -1px -1px 2px rgba(255,255,255,0.8)' }}>RICHARD SANCHEZ</h1>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#a5c4f6', fontWeight: 600 }}>Marketing Manager</p>
+              <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#ffffff', textShadow: '1px 1px 4px rgba(0,0,0,0.4)' }}>RICHARD SANCHEZ</h1>
+              <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#cbd5e1', fontWeight: 600 }}>Marketing Manager</p>
             </div>
 
             {/* Main Content Area */}
@@ -411,15 +435,15 @@ function Builder() {
                 
                 {/* Header Spacer (Absolute positioned to span full width at top) */}
                 <div style={{
-                  position: 'absolute', top: 0, left: 0, right: 0, height: '160px',
-                  backgroundColor: 'white', zIndex: 1
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '180px',
+                  backgroundColor: '#353945', zIndex: 1
                 }}></div>
 
                 {/* Left Sidebar */}
                 <div style={{
                   width: '32%',
-                  backgroundColor: '#f4f5f7',
-                  padding: '160px 2rem 2rem 2rem',
+                  backgroundColor: '#e5e7eb',
+                  padding: '180px 2rem 2rem 2rem',
                   position: 'relative',
                   zIndex: 2,
                   display: 'flex',
@@ -431,7 +455,7 @@ function Builder() {
                     width: '180px', height: '180px', borderRadius: '50%',
                     backgroundColor: '#fff',
                     position: 'absolute', top: '40px', left: '50%', transform: 'translateX(-50%)',
-                    border: '5px solid #e5e7eb',
+                    border: '6px solid #e5e7eb', zIndex: 10,
                     overflow: 'hidden',
                     display: 'flex', justifyContent: 'center', alignItems: 'center'
                   }}>
@@ -449,18 +473,42 @@ function Builder() {
                     </div>
                   </div>
 
-                  {/* Skills */}
-                  <div>
-                    <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem' }}>SKILLS</h3>
-                    <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
-                      <li>Project Management</li>
-                      <li>Public Relations</li>
-                      <li>Teamwork</li>
-                      <li>Time Management</li>
-                      <li>Leadership</li>
-                      <li>Effective Communication</li>
-                    </ul>
-                  </div>
+                  
+            {/* Skills */}
+            <div>
+              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>SKILLS</h3>
+              <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
+                <li>Project Management</li>
+                <li>Public Relations</li>
+                <li>Teamwork</li>
+                <li>Time Management</li>
+                <li>Leadership</li>
+                <li>Effective Communication</li>
+              </ul>
+            </div>
+
+            {/* Languages */}
+            <div>
+              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>LANGUAGES</h3>
+              <ul style={{ listStylePosition: 'inside', fontSize: '0.85rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: 0, padding: 0 }}>
+                <li>English (Fluent)</li>
+                <li>French (Fluent)</li>
+                <li>German (Basic)</li>
+                <li>Spanish (Intermediate)</li>
+              </ul>
+            </div>
+            
+            {/* Reference */}
+            <div>
+              <h3 style={{ fontSize: '1rem', letterSpacing: '2px', color: '#101c56', borderBottom: '2px solid #8ab4f8', paddingBottom: '0.5rem', marginBottom: '1rem', fontWeight: 700 }}>REFERENCE</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', color: '#334155' }}>
+                <span style={{ fontWeight: 600 }}>Estelle Darcy</span>
+                <span>Wardiere Inc. / CTO</span>
+                <span style={{ marginTop: '0.5rem' }}>Phone: 123-456-7890</span>
+                <span>Email: hello@reallygreatsite.com</span>
+              </div>
+            </div>
+
 
                 </div>
 
@@ -474,8 +522,8 @@ function Builder() {
                 }}>
                   {/* Name and Title (Over the white header) */}
                   <div style={{ height: '110px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#f3f4f6', textShadow: '1px 1px 2px rgba(0,0,0,0.2), -1px -1px 2px rgba(255,255,255,0.8)' }}>RICHARD SANCHEZ</h1>
-                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#a5c4f6', fontWeight: 600 }}>Marketing Manager</p>
+                    <h1 style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '1px', color: '#ffffff', textShadow: '1px 1px 4px rgba(0,0,0,0.4)' }}>RICHARD SANCHEZ</h1>
+                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#cbd5e1', fontWeight: 600 }}>Marketing Manager</p>
                   </div>
 
                   {/* Main Content Area */}
