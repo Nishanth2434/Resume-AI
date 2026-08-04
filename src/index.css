@@ -359,3 +359,18 @@ a { text-decoration: none; color: inherit; }
   .glass-panel { border-radius: var(--radius-lg); }
 }
 
+
+/* Further Mobile Refining */
+.navbar-panel { max-width: 1200px; margin: 0 auto; padding: 0.75rem 1.5rem; border-radius: var(--radius-pill); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); }
+.hero-buttons { display: flex; gap: 1.5rem; justify-content: center; }
+.hero-btn { padding: 1rem 2.5rem; font-size: 1.1rem; }
+.brand-text { font-size: 1.25rem; font-weight: 700; font-family: var(--font-heading); letter-spacing: -0.02em; }
+@media (max-width: 768px) {
+  .navbar-panel { padding: 0.5rem 0.75rem !important; }
+  .brand-text { font-size: 1rem !important; white-space: nowrap; }
+  .nav-container { gap: 0.5rem; }
+  .hero-buttons { flex-direction: column; gap: 1rem; padding: 0 1rem; }
+  .hero-btn { width: 100%; justify-content: center; border-radius: var(--radius-lg); }
+  .app-header { padding: 0.5rem; }
+}
+

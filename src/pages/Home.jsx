@@ -21,11 +21,11 @@ function Home() {
           AI-driven insights that surgically analyze your resume against ATS algorithms, exposing critical gaps and supercharging your job prospects.
         </p>
         
-        <div className="animate-fade-in-up stagger-4" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
-          <Link to="/analyze" className="btn btn-gradient" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem' }}>
+        <div className="animate-fade-in-up stagger-4 hero-buttons">
+          <Link to="/analyze" className="btn btn-gradient hero-btn">
             <Upload size={20} /> Analyze Resume
           </Link>
-          <Link to="/build" className="btn btn-secondary" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem' }}>
+          <Link to="/build" className="btn btn-secondary hero-btn">
             <FileText size={20} /> Build from Scratch
           </Link>
         </div>

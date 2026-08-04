@@ -37,21 +37,12 @@ function Navbar() {
 
   return (
     <header className="app-header">
-      <div className="glass-panel" style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        padding: '0.75rem 1.5rem', 
-        borderRadius: 'var(--radius-pill)',
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)'
-      }}>
+      <div className="glass-panel navbar-panel">
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-primary)', textDecoration: 'none' }}>
           <div style={{ background: 'var(--gradient-mesh)', padding: '0.4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)' }}>
             <img src="/logo.jpg" alt="Logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
           </div>
-          <span style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>SmartResume<span className="text-gradient">AI</span></span>
+          <span className="brand-text">SmartResume<span className="text-gradient">AI</span></span>
         </Link>
         
         <nav className="nav-container">
