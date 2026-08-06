@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { FileText, BarChart, Settings, Home as HomeIcon, Zap, LogIn, LogOut, Sun, Moon } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 import { supabase } from './lib/supabase';
 import Home from './pages/Home';
 import Analyzer from './pages/Analyzer';
@@ -263,6 +264,7 @@ function App() {
               </Routes>
             </main>
             <Footer />
+            <Analytics />
           </div>
         </Router>
       </AuthContext.Provider>
