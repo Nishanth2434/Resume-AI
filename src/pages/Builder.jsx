@@ -17,6 +17,7 @@ function Builder() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [isRewriting, setIsRewriting] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
 
@@ -24,7 +25,7 @@ function Builder() {
   const [resumeData, setResumeData] = useState({
     resumeType: 'fresher',
     hasInternship: null,
-    personal: { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '', photoURL: 'https://via.placeholder.com/180' },
+    personal: { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '', photoURL: '' },
     experience: [ { role: '', company: '', startDate: '', endDate: '', bullets: '' } ],
     projects: [ { title: '', techStack: '', startDate: '', endDate: '', bullets: '', link: '' } ],
     education: [ { degree: '', institution: '', year: '', gpa: '', coursework: '' } ],
@@ -49,7 +50,7 @@ function Builder() {
           setResumeData({
             resumeType: data.data.resumeType || 'fresher',
             hasInternship: data.data.hasInternship !== undefined ? data.data.hasInternship : null,
-            personal: data.data.personal || { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '', photoURL: 'https://via.placeholder.com/180' },
+            personal: data.data.personal || { name: '', title: '', email: '', phone: '', linkedin: '', location: '', summary: '', photoURL: '' },
             experience: data.data.experience || [ { role: '', company: '', startDate: '', endDate: '', bullets: '' } ],
             projects: data.data.projects || [ { title: '', techStack: '', startDate: '', endDate: '', bullets: '', link: '' } ],
             education: data.data.education || [ { degree: '', institution: '', year: '', gpa: '', coursework: '' } ],
@@ -153,19 +154,34 @@ function Builder() {
     }
   };
 
-  const exportPDF = () => {
-    const element = previewRef.current;
-    
-    const opt = {
-      margin: 0,
-      filename: 'resume.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { avoid: 'all' }
-    };
+  const exportPDF = async () => {
+    setIsExporting(true);
+    try {
+      const element = previewRef.current;
+      if (!element) {
+        alert("Error: PDF container not found.");
+        return;
+      }
+      
+      const opt = {
+        margin: 0,
+        filename: 'resume.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { avoid: 'all' }
+      };
 
-    html2pdf().set(opt).from(element).save();
+      // Handle common Vite import issues with html2pdf
+      const pdfMaker = typeof html2pdf === 'function' ? html2pdf() : html2pdf.default();
+      
+      await pdfMaker.set(opt).from(element).save();
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+      alert("PDF Export Error: " + error.message);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handlePersonalChange = (field, value) => {
@@ -308,7 +324,10 @@ function Builder() {
             <Save size={18} style={{ marginRight: '0.5rem' }} /> {isSaving ? 'Saving...' : 'Save Resume'}
           </button>
           <button className="btn btn-secondary" onClick={() => setShowPreview(true)}><Eye size={18} /> View Template</button>
-          <button className="btn btn-gradient" onClick={exportPDF}><Download size={18} /> Export PDF</button>
+          <button className="btn btn-gradient" onClick={exportPDF} disabled={isExporting} style={{ opacity: isExporting ? 0.7 : 1 }}>
+            {isExporting ? <Loader2 className="animate-spin" size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={18} />} 
+            {isExporting ? ' Exporting...' : ' Export PDF'}
+          </button>
         </div>
       </div>
 
@@ -520,7 +539,7 @@ function Builder() {
       </div>
 
       {/* HIDDEN RENDER FOR PDF EXPORT */}
-      <div style={{ position: 'fixed', top: '-9999px', left: '-9999px', visibility: 'hidden' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: -1000, opacity: 0.01, pointerEvents: 'none' }}>
         <div ref={previewRef}>
           <ResumePreview data={resumeData} photoURL={resumeData.personal.photoURL} template={selectedTemplate} />
         </div>
@@ -538,7 +557,10 @@ function Builder() {
             <div style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0 }}>Resume Preview</h3>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                <button className="btn btn-gradient" onClick={exportPDF} style={{ padding: '0.5rem 1rem' }}><Download size={16} /> Export PDF</button>
+                <button className="btn btn-gradient" onClick={exportPDF} disabled={isExporting} style={{ padding: '0.5rem 1rem', opacity: isExporting ? 0.7 : 1 }}>
+                  {isExporting ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={16} />} 
+                  {isExporting ? ' Exporting...' : ' Export PDF'}
+                </button>
                 <button className="btn btn-outline" onClick={() => setShowPreview(false)} style={{ padding: '0.5rem 1rem' }}><X size={16} /> Close</button>
               </div>
             </div>
